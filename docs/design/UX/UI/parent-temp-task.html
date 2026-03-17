@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TimeManager - 家长端 - 临时作业</title>
+    <style>
+        :root {
+            --color-primary: #6366F1;
+            --color-primary-hover: #4F46E5;
+            --color-success: #22C55E;
+            --color-bg: #F8FAFC;
+            --color-surface: #FFFFFF;
+            --color-border: #E2E8F0;
+            --color-text-primary: #1E293B;
+            --color-text-secondary: #64748B;
+            --font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-family); background: var(--color-bg); min-height: 100vh; }
+
+        .app-container { max-width: 414px; margin: 0 auto; min-height: 100vh; background: var(--color-bg); display: flex; flex-direction: column; }
+
+        /* 头部 */
+        .header {
+            height: 56px;
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .header-title { font-size: 18px; font-weight: 600; flex: 1; }
+
+        /* 内容区 */
+        .content { flex: 1; padding: 20px 16px; }
+
+        /* 提示卡片 */
+        .tip-card {
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            border-radius: 16px;
+            padding: 20px;
+            color: white;
+            margin-bottom: 24px;
+        }
+
+        .tip-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+        .tip-text { font-size: 14px; opacity: 0.9; line-height: 1.5; }
+
+        /* 输入区域 */
+        .input-section { margin-bottom: 24px; }
+        .input-label { font-size: 14px; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 12px; display: block; }
+
+        .input-area {
+            background: var(--color-surface);
+            border: 2px solid var(--color-border);
+            border-radius: 16px;
+            padding: 16px;
+            transition: all 0.2s;
+        }
+
+        .input-area:focus-within { border-color: var(--color-primary); }
+
+        .task-input {
+            width: 100%;
+            border: none;
+            font-size: 16px;
+            font-family: inherit;
+            resize: none;
+            min-height: 100px;
+            outline: none;
+        }
+
+        .input-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .voice-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .voice-btn:hover { background: var(--color-primary); color: white; }
+        .voice-btn.recording { animation: pulse 1.5s infinite; background: var(--color-primary); color: white; }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .input-hint { font-size: 13px; color: var(--color-text-secondary); }
+
+        /* AI识别结果 */
+        .ai-result-card {
+            background: var(--color-surface);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .ai-result-card.show { display: block; animation: slideUp 0.3s ease; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .ai-result-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-success);
+            margin-bottom: 16px;
+        }
+
+        .ai-result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .ai-result-item:last-child { border-bottom: none; }
+
+        .ai-result-label { font-size: 14px; color: var(--color-text-secondary); }
+        .ai-result-value { font-size: 15px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+
+        .edit-btn {
+            font-size: 13px;
+            color: var(--color-primary);
+            background: var(--color-primary-light);
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* 时长选择 */
+        .duration-selector {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .duration-option {
+            padding: 10px 20px;
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            background: var(--color-surface);
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .duration-option:hover, .duration-option.selected {
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+            font-weight: 500;
+        }
+
+        /* 推送提示 */
+        .push-notice {
+            background: #F0FDF4;
+            border: 1px solid #BBF7D0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .push-notice-icon { font-size: 20px; }
+        .push-notice-text { font-size: 14px; color: #166534; line-height: 1.5; flex: 1; }
+
+        /* 底部按钮 */
+        .bottom-bar {
+            background: var(--color-surface);
+            border-top: 1px solid var(--color-border);
+            padding: 16px 24px calc(16px + env(safe-area-inset-bottom));
+        }
+
+        .btn-primary {
+            width: 100%;
+            height: 52px;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover { background: var(--color-primary-hover); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* 成功弹窗 */
+        .success-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .success-modal.show { display: flex; }
+
+        .success-content {
+            background: var(--color-surface);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 320px;
+            animation: scaleIn 0.3s ease;
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .success-icon { font-size: 64px; margin-bottom: 16px; }
+        .success-title { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+        .success-text { font-size: 15px; color: var(--color-text-secondary); margin-bottom: 24px; }
+        .success-btn { width: 100%; height: 48px; background: var(--color-success); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
+
+        /* 底部导航 */
+        .bottom-nav {
+            height: 64px;
+            background: var(--color-surface);
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px 16px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .nav-item-icon { font-size: 24px; color: var(--color-text-tertiary); }
+        .nav-item-text { font-size: 10px; color: var(--color-text-tertiary); }
+        .nav-item.active .nav-item-icon, .nav-item.active .nav-item-text { color: var(--color-primary); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <button class="back-btn" onclick="history.back()">←</button>
+            <h1 class="header-title">临时作业推送</h1>
+        </header>
+
+        <div class="content">
+            <!-- 提示卡片 -->
+            <div class="tip-card">
+                <div class="tip-title">📱 快速推送</div>
+                <div class="tip-text">
+                    输入作业描述后，AI会自动识别任务类型和预估时长，一键推送到孩子端。
+                </div>
+            </div>
+
+            <!-- 输入区域 -->
+            <div class="input-section">
+                <label class="input-label">作业描述</label>
+                <div class="input-area">
+                    <textarea class="task-input" id="taskInput" placeholder="例如：数学老师刚发的练习册第5页...">数学老师刚发的练习册第5页</textarea>
+                    <div class="input-actions">
+                        <span class="input-hint">支持语音输入</span>
+                        <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">🎤</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI识别结果 -->
+            <div class="ai-result-card" id="aiResult">
+                <div class="ai-result-title">
+                    <span>✨</span>
+                    <span>AI识别结果</span>
+                </div>
+
+                <div class="ai-result-item">
+                    <span class="ai-result-label">任务类型</span>
+                    <span class="ai-result-value">数学练习册</span>
+                </div>
+
+                <div class="ai-result-item">
+                    <span class="ai-result-label">学科</span>
+                    <span class="ai-result-value">数学 📐</span>
+                </div>
+
+                <div class="ai-result-item">
+                    <span class="ai-result-label">预估时长</span>
+                    <span class="ai-result-value">
+                        <span id="durationValue">20分钟</span>
+                        <button class="edit-btn" onclick="editDuration()">修改</button>
+                    </span>
+                </div>
+
+                <div class="ai-result-item" id="durationEdit" style="display: none;">
+                    <span class="ai-result-label">选择时长</span>
+                    <div class="duration-selector">
+                        <button class="duration-option" onclick="selectDuration(this, '10分钟')">10分钟</button>
+                        <button class="duration-option selected" onclick="selectDuration(this, '15分钟')">15分钟</button>
+                        <button class="duration-option" onclick="selectDuration(this, '20分钟')">20分钟</button>
+                        <button class="duration-option" onclick="selectDuration(this, '25分钟')">25分钟</button>
+                        <button class="duration-option" onclick="selectDuration(this, '30分钟')">30分钟</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 推送提示 -->
+            <div class="push-notice" id="pushNotice" style="display: none;">
+                <span class="push-notice-icon">⏰</span>
+                <span class="push-notice-text">
+                    孩子将在下次打开APP时收到通知，作业会自动加入今日计划。
+                </span>
+            </div>
+        </div>
+
+        <div class="bottom-bar">
+            <button class="btn-primary" id="pushBtn" onclick="pushTask()" disabled>
+                <span>🚀</span>
+                <span>立即推送至孩子端</span>
+            </button>
+        </div>
+
+        <!-- 底部导航 -->
+        <nav class="bottom-nav">
+            <a href="parent-dashboard.html" class="nav-item">
+                <span class="nav-item-icon">🏠</span>
+                <span class="nav-item-text">首页</span>
+            </a>
+            <a href="parent-create-plan.html" class="nav-item">
+                <span class="nav-item-icon">📋</span>
+                <span class="nav-item-text">计划</span>
+            </a>
+            <a href="parent-statistics.html" class="nav-item">
+                <span class="nav-item-icon">📊</span>
+                <span class="nav-item-text">统计</span>
+            </a>
+            <a href="settings.html" class="nav-item">
+                <span class="nav-item-icon">👤</span>
+                <span class="nav-item-text">我的</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- 成功弹窗 -->
+    <div class="success-modal" id="successModal">
+        <div class="success-content">
+            <div class="success-icon">🎉</div>
+            <div class="success-title">推送成功！</div>
+            <div class="success-text">临时作业已成功推送到孩子端</div>
+            <button class="success-btn" onclick="closeSuccess()">知道了</button>
+        </div>
+    </div>
+
+    <script>
+        const taskInput = document.getElementById('taskInput');
+        const aiResult = document.getElementById('aiResult');
+        const pushNotice = document.getElementById('pushNotice');
+        const pushBtn = document.getElementById('pushBtn');
+        const voiceBtn = document.getElementById('voiceBtn');
+
+        // 输入监听，模拟AI识别
+        let typingTimer;
+        taskInput.addEventListener('input', () => {
+            clearTimeout(typingTimer);
+            if (taskInput.value.length > 3) {
+                typingTimer = setTimeout(() => {
+                    showAIResult();
+                }, 800);
+            }
+        });
+
+        // 显示AI结果
+        function showAIResult() {
+            aiResult.classList.add('show');
+            pushNotice.style.display = 'flex';
+            pushBtn.disabled = false;
+        }
+
+        // 语音输入
+        let isRecording = false;
+        function toggleVoice() {
+            isRecording = !isRecording;
+            if (isRecording) {
+                voiceBtn.classList.add('recording');
+                taskInput.value = '正在听...';
+                setTimeout(() => {
+                    voiceBtn.classList.remove('recording');
+                    isRecording = false;
+                    taskInput.value = '数学口算第5页';
+                    showAIResult();
+                }, 2000);
+            } else {
+                voiceBtn.classList.remove('recording');
+            }
+        }
+
+        // 编辑时长
+        function editDuration() {
+            document.getElementById('durationEdit').style.display = 
+                document.getElementById('durationEdit').style.display === 'none' ? 'block' : 'none';
+        }
+
+        // 选择时长
+        function selectDuration(btn, duration) {
+            document.querySelectorAll('.duration-option').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            document.getElementById('durationValue').textContent = duration;
+            setTimeout(() => {
+                document.getElementById('durationEdit').style.display = 'none';
+            }, 300);
+        }
+
+        // 推送任务
+        function pushTask() {
+            document.getElementById('successModal').classList.add('show');
+        }
+
+        // 关闭成功弹窗
+        function closeSuccess() {
+            document.getElementById('successModal').classList.remove('show');
+            window.location.href = 'parent-dashboard.html';
+        }
+
+        // 初始化
+        if (taskInput.value.length > 3) {
+            showAIResult();
+        }
+    </script>
+</body>
+</html>

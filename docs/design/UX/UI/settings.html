@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TimeManager - 设置</title>
+    <style>
+        :root {
+            --color-primary: #6366F1;
+            --color-success: #22C55E;
+            --color-bg: #F8FAFC;
+            --color-surface: #FFFFFF;
+            --color-border: #E2E8F0;
+            --color-text-primary: #1E293B;
+            --color-text-secondary: #64748B;
+            --font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-family); background: var(--color-bg); min-height: 100vh; }
+
+        .app-container { max-width: 414px; margin: 0 auto; min-height: 100vh; background: var(--color-bg); display: flex; flex-direction: column; }
+
+        /* 头部 */
+        .header {
+            height: 56px;
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .header-title { font-size: 18px; font-weight: 600; flex: 1; }
+
+        /* 内容区 */
+        .content { flex: 1; padding: 16px; overflow-y: auto; }
+
+        /* 用户信息 */
+        .user-card {
+            background: var(--color-surface);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .user-info { flex: 1; }
+        .user-name { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+        .user-role { font-size: 14px; color: var(--color-text-secondary); }
+
+        .switch-role-btn {
+            padding: 8px 16px;
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+            border: none;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* 设置分组 */
+        .settings-group {
+            background: var(--color-surface);
+            border-radius: 16px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .group-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            padding: 16px 20px 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--color-border);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .setting-item:last-child { border-bottom: none; }
+        .setting-item:hover { background: var(--color-bg); }
+
+        .setting-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+
+        .setting-icon.blue { background: #DBEAFE; }
+        .setting-icon.green { background: #DCFCE7; }
+        .setting-icon.yellow { background: #FEF3C7; }
+        .setting-icon.red { background: #FEE2E2; }
+        .setting-icon.purple { background: #F3E8FF; }
+
+        .setting-info { flex: 1; }
+        .setting-name { font-size: 15px; font-weight: 500; margin-bottom: 2px; }
+        .setting-desc { font-size: 12px; color: var(--color-text-secondary); }
+
+        .setting-value {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .setting-arrow { font-size: 18px; color: var(--color-text-tertiary); }
+
+        /* 开关 */
+        .toggle {
+            width: 48px;
+            height: 28px;
+            background: var(--color-border);
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .toggle.active { background: var(--color-success); }
+
+        .toggle-dot {
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .toggle.active .toggle-dot { transform: translateX(20px); }
+
+        /* 版本信息 */
+        .version-info {
+            text-align: center;
+            padding: 24px;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+
+        .version-number { font-weight: 600; color: var(--color-text-primary); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <button class="back-btn" onclick="history.back()">←</button>
+            <h1 class="header-title">设置</h1>
+        </header>
+
+        <div class="content">
+            <!-- 用户信息 -->
+            <div class="user-card">
+                <div class="user-avatar">👩</div>
+                <div class="user-info">
+                    <div class="user-name">小明妈妈</div>
+                    <div class="user-role">家长账号 · 已绑定1个孩子</div>
+                </div>
+                <button class="switch-role-btn" onclick="switchToChild()">👶 切换至孩子视图</button>
+            </div>
+
+            <!-- 番茄钟设置 -->
+            <div class="settings-group">
+                <div class="group-title">番茄钟设置</div>
+
+                <div class="setting-item">
+                    <div class="setting-icon blue">⏱️</div>
+                    <div class="setting-info">
+                        <div class="setting-name">专注时长</div>
+                        <div class="setting-desc">每个番茄钟的专注时间</div>
+                    </div>
+                    <div class="setting-value">
+                        25分钟
+                        <span class="setting-arrow">›</span>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-icon green">☕</div>
+                    <div class="setting-info">
+                        <div class="setting-name">休息时长</div>
+                        <div class="setting-desc">每个番茄钟后的休息时间</div>
+                    </div>
+                    <div class="setting-value">
+                        5分钟
+                        <span class="setting-arrow">›</span>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-icon yellow">🔔</div>
+                    <div class="setting-info">
+                        <div class="setting-name">自动开始休息</div>
+                    </div>
+                    <div class="toggle active" onclick="toggleSwitch(this)">
+                        <div class="toggle-dot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 作息设置 -->
+            <div class="settings-group">
+                <div class="group-title">作息管理</div>
+
+                <div class="setting-item">
+                    <div class="setting-icon purple">🌙</div>
+                    <div class="setting-info">
+                        <div class="setting-name">睡觉时间</div>
+                        <div class="setting-desc">设置孩子每晚睡觉时间</div>
+                    </div>
+                    <div class="setting-value">
+                        21:30
+                        <span class="setting-arrow">›</span>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-icon blue">⏰</div>
+                    <div class="setting-info">
+                        <div class="setting-name">睡前提醒</div>
+                        <div class="setting-desc">提前20分钟提醒</div>
+                    </div>
+                    <div class="toggle active" onclick="toggleSwitch(this)">
+                        <div class="toggle-dot"></div>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-icon yellow">👁️</div>
+                    <div class="setting-info">
+                        <div class="setting-name">护眼模式</div>
+                        <div class="setting-desc">休息时自动开启</div>
+                    </div>
+                    <div class="toggle active" onclick="toggleSwitch(this)">
+                        <div class="toggle-dot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 通知设置 -->
+            <div class="settings-group">
+                <div class="group-title">通知设置</div>
+
+                <div class="setting-item">
+                    <div class="setting-icon green">📱</div>
+                    <div class="setting-info">
+                        <div class="setting-name">任务完成通知</div>
+                    </div>
+                    <div class="toggle active" onclick="toggleSwitch(this)">
+                        <div class="toggle-dot"></div>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-icon yellow">⚠️</div>
+                    <div class="setting-info">
+                        <div class="setting-name">时间预警</div>
+                    </div>
+                    <div class="toggle active" onclick="toggleSwitch(this)">
+                        <div class="toggle-dot"></div>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-icon blue">📊</div>
+                    <div class="setting-info">
+                        <div class="setting-name">每日总结推送</div>
+                    </div>
+                    <div class="toggle" onclick="toggleSwitch(this)">
+                        <div class="toggle-dot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 其他设置 -->
+            <div class="settings-group">
+                <div class="group-title">其他</div>
+
+                <div class="setting-item">
+                    <div class="setting-icon purple">👶</div>
+                    <div class="setting-info">
+                        <div class="setting-name">管理孩子账号</div>
+                    </div>
+                    <span class="setting-arrow">›</span>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-icon blue">🔒</div>
+                    <div class="setting-info">
+                        <div class="setting-name">家长验证设置</div>
+                    </div>
+                    <span class="setting-arrow">›</span>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-icon red">🗑️</div>
+                    <div class="setting-info">
+                        <div class="setting-name">清除缓存</div>
+                    </div>
+                    <span class="setting-arrow">›</span>
+                </div>
+            </div>
+
+            <div class="version-info">
+                当前版本 <span class="version-number">v2.1.0</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSwitch(el) {
+            el.classList.toggle('active');
+        }
+
+        function switchToChild() {
+            if (confirm('需要家长验证才能切换到孩子模式。是否继续？')) {
+                window.location.href = 'child-today-tasks.html';
+            }
+        }
+    </script>
+</body>
+</html>

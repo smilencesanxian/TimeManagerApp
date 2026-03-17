@@ -1,0 +1,656 @@
+// 家长首页样式 - 遵循 parent-dashboard.html 设计原型
+// designWidth=750，尺寸 × 2（48px按钮 → 96px，14px字体 → 28px）
+
+.container {
+  min-height: 100vh;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 128px; // 底部导航高度
+}
+
+/* ===== Header ===== */
+.header {
+  height: 112px;
+  background: var(--color-surface);
+  border-bottom: 2px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  gap: 24px;
+  flex-shrink: 0;
+}
+
+.headerTitle {
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  flex: 1;
+}
+
+.childSelector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  background: var(--color-bg);
+  border-radius: 9999px;
+  border: 2px solid var(--color-border);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:active {
+    background: var(--color-primary-light);
+    border-color: var(--color-primary);
+  }
+}
+
+.childSelectorAvatar {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.childSelectorName {
+  font-size: 26px;
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.childSelectorArrow {
+  font-size: 20px;
+  color: var(--color-text-secondary);
+}
+
+/* ===== 快捷操作 4-grid ===== */
+.quickActions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  padding: 32px;
+}
+
+.quickBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 16px;
+  background: var(--color-surface);
+  border-radius: 24px;
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:active {
+    transform: scale(0.97);
+    box-shadow: var(--shadow-highlight);
+  }
+}
+
+.quickIcon {
+  font-size: 44px;
+  line-height: 1;
+}
+
+.quickText {
+  font-size: 20px;
+  color: var(--color-text-primary);
+  text-align: center;
+}
+
+/* ===== 内容区 ===== */
+.content {
+  flex: 1;
+  padding: 0 32px 32px;
+}
+
+/* ===== Section Card ===== */
+.sectionCard {
+  background: var(--color-surface);
+  border-radius: 32px;
+  padding: 32px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-card);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.sectionMeta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sectionCount {
+  font-size: 24px;
+  color: var(--color-text-secondary);
+}
+
+.sectionAction {
+  padding: 8px 20px;
+  border-radius: 9999px;
+  background: var(--color-primary-light);
+  cursor: pointer;
+}
+
+.sectionActionText {
+  font-size: 24px;
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+/* ===== 任务列表 ===== */
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.taskItem {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 24px;
+  background: var(--color-bg);
+  border-radius: 20px;
+  margin-bottom: 16px;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.taskItemActive {
+  background: var(--color-surface);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-highlight);
+}
+
+.taskItemDone {
+  opacity: 0.6;
+  background: #F0FDF4;
+  border-color: transparent;
+}
+
+.taskIcon {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.subjectMath { background: var(--color-math-bg); }
+.subjectChinese { background: var(--color-chinese-bg); }
+.subjectEnglish { background: var(--color-english-bg); }
+.subjectOther { background: var(--color-other-bg); }
+
+.taskIconText {
+  font-size: 40px;
+}
+
+.taskInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.taskName {
+  font-size: 30px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  display: block;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.taskMeta {
+  font-size: 22px;
+  color: var(--color-text-secondary);
+}
+
+/* 状态标签 */
+.taskStatusTag {
+  padding: 8px 20px;
+  border-radius: 24px;
+  font-size: 22px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.tagDoing {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.tagDone {
+  background: #DCFCE7;
+  color: #16A34A;
+}
+
+.tagTodo {
+  background: #F1F5F9;
+  color: var(--color-text-secondary);
+}
+
+.taskActions {
+  display: flex;
+  gap: 8px;
+}
+
+.taskDeleteBtn {
+  font-size: 32px;
+  cursor: pointer;
+  padding: 8px;
+}
+
+/* ===== Skeleton Loading ===== */
+.skeletonList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.skeletonItem {
+  height: 96px;
+  border-radius: 20px;
+  background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
+  background-size: 400% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 400% 0; }
+  100% { background-position: -400% 0; }
+}
+
+/* ===== 空态 ===== */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64px 0;
+}
+
+.emptyIcon {
+  font-size: 96px;
+  margin-bottom: 24px;
+}
+
+.emptyTitle {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 12px;
+}
+
+.emptyDesc {
+  font-size: 26px;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+/* ===== 占位态 ===== */
+.placeholderState {
+  padding: 32px 0;
+  text-align: center;
+}
+
+.placeholderText {
+  font-size: 26px;
+  color: var(--color-text-tertiary);
+}
+
+/* ===== 今日奖励 ===== */
+.rewardRow {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 24px;
+  background: var(--color-bg);
+  border-radius: 20px;
+}
+
+.rewardStars {
+  font-size: 48px;
+}
+
+.rewardInfo {
+  flex: 1;
+}
+
+.rewardTitle {
+  font-size: 30px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.rewardDesc {
+  font-size: 24px;
+  color: var(--color-text-secondary);
+}
+
+/* ===== FAB 悬浮按钮 ===== */
+.fab {
+  position: fixed;
+  bottom: 160px;
+  right: 40px;
+  width: 112px;
+  height: 112px;
+  background: var(--color-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(99,102,241,0.4);
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.15s ease;
+
+  &:active {
+    transform: scale(0.95);
+    background: var(--color-primary-hover);
+  }
+}
+
+.fabIcon {
+  font-size: 56px;
+  color: #fff;
+  font-weight: 300;
+  line-height: 1;
+  margin-top: -4px;
+}
+
+/* ===== 底部导航栏 ===== */
+.bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 128px;
+  background: var(--color-surface);
+  border-top: 2px solid var(--color-border);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 100;
+}
+
+.navItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 16px 32px;
+  border-radius: 24px;
+  transition: all 0.15s ease;
+  color: var(--color-text-tertiary);
+
+  &:active {
+    background: var(--color-bg);
+  }
+}
+
+.navItemActive {
+  color: var(--color-primary);
+}
+
+.navIcon {
+  font-size: 44px;
+  line-height: 1;
+}
+
+.navText {
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.navItemActive .navText {
+  font-weight: 600;
+}
+
+/* ===== 弹窗 ===== */
+.modalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: flex-end;
+  z-index: 200;
+}
+
+.modal {
+  background: var(--color-surface);
+  border-radius: 48px 48px 0 0;
+  padding: 48px 40px 80px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modalTitle {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  display: block;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.modalLabel {
+  font-size: 26px;
+  color: var(--color-text-secondary);
+  display: block;
+  margin-bottom: 16px;
+  margin-top: 32px;
+
+  &:first-of-type {
+    margin-top: 0;
+  }
+}
+
+.modalInput {
+  width: 100%;
+  height: 96px;
+  border: 2px solid var(--color-border);
+  border-radius: 16px;
+  padding: 0 32px;
+  font-size: 30px;
+  background: #FAFAFA;
+  box-sizing: border-box;
+  color: var(--color-text-primary);
+}
+
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.tag {
+  background: #F1F5F9;
+  border-radius: 16px;
+  padding: 16px 28px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tagText {
+  font-size: 26px;
+  color: var(--color-text-secondary);
+}
+
+.tagActive {
+  background: var(--color-primary);
+}
+
+.tagTextActive {
+  font-size: 26px;
+  color: #fff;
+  font-weight: 600;
+}
+
+.modalActions {
+  display: flex;
+  gap: 24px;
+  margin-top: 48px;
+}
+
+.btnPrimary {
+  flex: 2;
+  height: 96px;
+  background: var(--color-primary);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:active {
+    background: var(--color-primary-hover);
+    transform: scale(0.99);
+  }
+}
+
+.btnPrimaryText {
+  font-size: 30px;
+  color: #fff;
+  font-weight: 600;
+}
+
+.btnSecondary {
+  flex: 1;
+  height: 96px;
+  background: transparent;
+  border: 2px solid var(--color-border);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.btnSecondaryText {
+  font-size: 30px;
+  color: var(--color-text-primary);
+}
+
+.btnDisabled {
+  opacity: 0.6;
+}
+
+/* 邀请码展示 */
+.inviteCodeBox {
+  background: var(--color-primary-light);
+  border-radius: 24px;
+  padding: 48px;
+  text-align: center;
+  margin: 24px 0;
+  cursor: pointer;
+}
+
+.inviteCodeText {
+  font-size: 80px;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: 12px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.inviteCodeHint {
+  font-size: 24px;
+  color: var(--color-text-secondary);
+}
+
+.inviteCodeNote {
+  font-size: 24px;
+  color: var(--color-text-tertiary);
+  text-align: center;
+}
+
+/* 孩子列表项 */
+.childItem {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 28px 24px;
+  border-radius: 24px;
+  border: 2px solid var(--color-border);
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.childItemActive {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.childItemAvatar {
+  font-size: 40px;
+}
+
+.childItemName {
+  font-size: 30px;
+  color: var(--color-text-primary);
+  flex: 1;
+}
+
+.childItemCheck {
+  font-size: 32px;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* ===== Achievement Banner ===== */
+.achievementBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  border-radius: 12px;
+  margin: 16px 32px 0;
+  padding: 16px 24px;
+}
+
+.achievementBannerName {
+  font-size: 28px;
+  color: white;
+  font-weight: 600;
+}
+
+.achievementBannerStars {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 24px;
+}
+
+.achievementBannerValue {
+  font-size: 28px;
+  font-weight: bold;
+  color: #FCD34D;
+}

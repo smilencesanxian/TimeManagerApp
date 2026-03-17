@@ -1,0 +1,227 @@
+.container {
+  min-height: 100vh;
+  background: var(--color-bg, #F8FAFC);
+  display: flex;
+  flex-direction: column;
+}
+
+.tabBar {
+  display: flex;
+  background: var(--color-surface, #FFFFFF);
+  border-bottom: 2px solid var(--color-border, #E2E8F0);
+  flex-shrink: 0;
+}
+
+.tab {
+  flex: 1;
+  padding: 32px 0;
+  text-align: center;
+  font-size: 28px;
+  color: var(--color-text-secondary, #94A3B8);
+  cursor: pointer;
+  border-bottom: 4px solid transparent;
+}
+
+.tabActive {
+  color: var(--color-primary, #6366F1);
+  border-bottom-color: var(--color-primary, #6366F1);
+  font-weight: 600;
+}
+
+.habitsContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 32px;
+}
+
+.addRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 24px;
+}
+
+.addBtn {
+  background: var(--color-primary, #6366F1);
+  color: #FFFFFF;
+  padding: 20px 40px;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.addBtnText {
+  font-size: 28px;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.loadingText {
+  text-align: center;
+  color: var(--color-text-secondary, #94A3B8);
+  font-size: 28px;
+  padding: 60px 0;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120px 0;
+  gap: 16px;
+}
+
+.emptyText {
+  font-size: 32px;
+  color: var(--color-text-secondary, #94A3B8);
+}
+
+.emptyHint {
+  font-size: 24px;
+  color: var(--color-text-tertiary, #CBD5E1);
+}
+
+.habitList {
+  flex: 1;
+}
+
+.habitCard {
+  background: var(--color-surface, #FFFFFF);
+  border-radius: 20px;
+  padding: 32px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+}
+
+.checkedCard {
+  border: 2px solid var(--color-success, #22C55E);
+  background: #F0FDF4;
+}
+
+.habitLeft {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex: 1;
+}
+
+.habitIcon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.habitInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.habitName {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--color-text-primary, #1E293B);
+}
+
+.habitFrequency {
+  font-size: 24px;
+  color: var(--color-text-secondary, #94A3B8);
+}
+
+.habitRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.checkedIcon {
+  font-size: 36px;
+}
+
+.deleteBtn {
+  padding: 12px;
+  cursor: pointer;
+}
+
+.deleteBtnText {
+  font-size: 36px;
+}
+
+.tasksContent {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholderText {
+  font-size: 28px;
+  color: var(--color-text-secondary, #94A3B8);
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: var(--color-surface, #FFFFFF);
+  border-radius: 24px;
+  padding: 48px;
+  width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.modalTitle {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--color-text-primary, #1E293B);
+  text-align: center;
+}
+
+.modalBody {
+  font-size: 28px;
+  color: var(--color-text-secondary, #64748B);
+  text-align: center;
+}
+
+.modalActions {
+  display: flex;
+  gap: 24px;
+  margin-top: 16px;
+}
+
+.modalBtnSecondary {
+  flex: 1;
+  padding: 28px;
+  border-radius: 16px;
+  border: 2px solid var(--color-border, #E2E8F0);
+  text-align: center;
+  cursor: pointer;
+  font-size: 28px;
+  color: var(--color-text-secondary, #64748B);
+}
+
+.modalBtnPrimary {
+  flex: 1;
+  padding: 28px;
+  border-radius: 16px;
+  background: #EF4444;
+  text-align: center;
+  cursor: pointer;
+  font-size: 28px;
+  color: #FFFFFF;
+  font-weight: 600;
+}

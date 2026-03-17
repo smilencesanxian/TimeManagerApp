@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TimeManager - 家长端 - 习惯管理</title>
+    <style>
+        :root {
+            --color-primary: #6366F1;
+            --color-success: #22C55E;
+            --color-bg: #F8FAFC;
+            --color-surface: #FFFFFF;
+            --color-border: #E2E8F0;
+            --color-text-primary: #1E293B;
+            --color-text-secondary: #64748B;
+            --font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-family); background: var(--color-bg); min-height: 100vh; }
+
+        .app-container { max-width: 414px; margin: 0 auto; min-height: 100vh; background: var(--color-bg); display: flex; flex-direction: column; }
+
+        /* 头部 */
+        .header {
+            height: 56px;
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .header-title { font-size: 18px; font-weight: 600; flex: 1; }
+
+        .add-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: var(--color-primary);
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 内容区 */
+        .content { flex: 1; padding: 16px; overflow-y: auto; }
+
+        /* 连续打卡统计 */
+        .streak-card {
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            border-radius: 16px;
+            padding: 24px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .streak-title {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 12px;
+        }
+
+        .streak-stats {
+            display: flex;
+            gap: 32px;
+        }
+
+        .streak-item {
+            text-align: center;
+        }
+
+        .streak-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .streak-label {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        /* 习惯列表 */
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .habit-card {
+            background: var(--color-surface);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .habit-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .habit-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .habit-icon.blue { background: #DBEAFE; }
+        .habit-icon.green { background: #DCFCE7; }
+        .habit-icon.yellow { background: #FEF3C7; }
+
+        .habit-info { flex: 1; }
+        .habit-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+        .habit-meta { font-size: 13px; color: var(--color-text-secondary); }
+
+        .habit-menu {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: var(--color-text-tertiary);
+            font-size: 18px;
+        }
+
+        /* 打卡记录 */
+        .habit-calendar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .calendar-day {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .day-label {
+            font-size: 11px;
+            color: var(--color-text-secondary);
+        }
+
+        .day-check {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .day-check.done { background: var(--color-success); color: white; }
+        .day-check.missed { background: #FEE2E2; color: #EF4444; }
+        .day-check.future { background: var(--color-border); }
+
+        /* 连续打卡 */
+        .habit-streak {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: #F0FDF4;
+            border-radius: 10px;
+            font-size: 13px;
+            color: var(--color-success);
+        }
+
+        .habit-streak.fire { background: #FEF3C7; color: #D97706; }
+
+        /* 底部弹窗 */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: var(--color-surface);
+            width: 100%;
+            max-width: 414px;
+            border-radius: 20px 20px 0 0;
+            padding: 24px;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-label { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 8px; display: block; }
+
+        .form-input {
+            width: 100%;
+            height: 48px;
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 0 16px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+
+        .form-input:focus { outline: none; border-color: var(--color-primary); }
+
+        .frequency-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .freq-option {
+            padding: 10px 18px;
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .freq-option:hover, .freq-option.selected {
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+        }
+
+        .icon-selector {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .icon-option {
+            width: 48px;
+            height: 48px;
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .icon-option:hover, .icon-option.selected {
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            height: 48px;
+            border-radius: 12px;
+            border: none;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .modal-btn-secondary { background: var(--color-bg); color: var(--color-text-primary); }
+        .modal-btn-primary { background: var(--color-primary); color: white; }
+
+        /* 底部导航 */
+        .bottom-nav {
+            height: 64px;
+            background: var(--color-surface);
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px 16px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .nav-item-icon { font-size: 24px; color: var(--color-text-tertiary); }
+        .nav-item-text { font-size: 10px; color: var(--color-text-tertiary); }
+        .nav-item.active .nav-item-icon, .nav-item.active .nav-item-text { color: var(--color-primary); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <button class="back-btn" onclick="history.back()">←</button>
+            <h1 class="header-title">习惯管理</h1>
+            <button class="add-btn" onclick="showModal()">+</button>
+        </header>
+
+        <div class="content">
+            <!-- 连续打卡统计 -->
+            <div class="streak-card">
+                <div class="streak-title">习惯打卡统计</div>
+                <div class="streak-stats">
+                    <div class="streak-item">
+                        <div class="streak-value">7</div>
+                        <div class="streak-label">连续打卡(天)</div>
+                    </div>
+                    <div class="streak-item">
+                        <div class="streak-value">28</div>
+                        <div class="streak-label">本月完成(次)</div>
+                    </div>
+                    <div class="streak-item">
+                        <div class="streak-value">85%</div>
+                        <div class="streak-label">完成率</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 习惯列表 -->
+            <div class="section-title">当前习惯 (3个)</div>
+
+            <div class="habit-card">
+                <div class="habit-header">
+                    <div class="habit-icon blue">🌙</div>
+                    <div class="habit-info">
+                        <div class="habit-name">早睡早起</div>
+                        <div class="habit-meta">每日 · 21:30睡觉 · 已坚持7天</div>
+                    </div>
+                    <button class="habit-menu">⋮</button>
+                </div>
+
+                <div class="habit-calendar">
+                    <div class="calendar-day">
+                        <span class="day-label">一</span>
+                        <span class="day-check done">✓</span>
+                    </div>
+                    <div class="calendar-day">
+                        <span class="day-label">二</span>
+                        <span class="day-check done">✓</span>
+                    </div>
+                    <div class="calendar-day">
+                        <span class="day-label">三</span>
+                        <span class="day-check done">✓</span>
+                    </div>
+                    <div class="calendar-day">
+                        <span class="day-label">四</span>
+                        <span class="day-check done">✓</span>
+                    </div>
+                    <div class="calendar-day">
+                        <span class="day-label">五</span>
+                        <span class="day-check done">✓</span>
+                    </div>
+                    <div class="calendar-day">
+                        <span class="day-label">六</span>
+                        <span class="day-check done">✓</span>
+                    </div>
+                    <div class="calendar-day">
+                        <span class="day-label">日</span>
+                        <span class="day-check done">✓</span>
+                    </div>
+                </div>
+
+                <div class="habit-streak">
+                    <span>🔥</span>
+                    <span>连续打卡7天，太棒了！</span>
+                </div>
+            </div>
+
+            <div class="habit-card">
+                <div class="habit-header">
+                    <div class="habit-icon yellow">🎒</div>
+                    <div class="habit-info">
+                        <div class="habit-name">整理书包</div>
+                        <div class="habit-meta">每日 · 睡前 · 已坚持12天</div>
+                    </div>
+                    <button class="habit-menu">⋮</button>
+                </div>
+
+                <div class="habit-calendar">
+                    <div class="calendar-day">
+                        <span class="day-label">一</span>
+                        <span class="day-check done">✓</span>
+                    </div>
+                    <div class="calendar-day">
+                        <span class="day-label">二</span>
+                        <span class="day-check done">✓</span>
+                    </div>
+                    <div class="calendar-day">
+                        <span class="day-label">三</span>
+                        <span class="day-check missed">✕</span>
+                    </div>
+                    <div class="calendar-day">
+                        <span class="day-label">四</span>
+                        <span class="day-check done">✓</span>
+                    </div>
+                    <div class="calendar-day">
+                        <span class="day-label">五</span>
+                        <span class="day-check done">✓</span>
+                    </div>
+                    <div class="calendar-day">
+                        <span class="day-label">六</span>
+                        <span class="day-check done">✓</span>
+                    </div>
+                    <div class="calendar-day">
+                        <span class="day-label">日</span>
+                        <span class="day-check future"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="habit-card">
+                <div class="habit-header">
+                    <div class="habit-icon green">🏃</div>
+                    <div class="habit-info">
+                        <div class="habit-name">跳绳运动</div>
+                        <div class="habit-meta">每周3次 · 本周已完成1次</div>
+                    </div>
+                    <button class="habit-menu">⋮</button>
+                </div>
+
+                <div class="habit-calendar">
+                    <div class="calendar-day">
+                        <span class="day-label">一</span>
+                        <span class="day-check done">✓</span>
+                    </div>
+                    <div class="calendar-day">
+                        <span class="day-label">二</span>
+                        <span class="day-check"></span>
+                    </div>
+                    <div class="calendar-day">
+                        <span class="day-label">三</span>
+                        <span class="day-check"></span>
+                    </div>
+                    <div class="calendar-day">
+                        <span class="day-label">四</span>
+                        <span class="day-check future"></span>
+                    </div>
+                    <div class="calendar-day">
+                        <span class="day-label">五</span>
+                        <span class="day-check future"></span>
+                    </div>
+                    <div class="calendar-day">
+                        <span class="day-label">六</span>
+                        <span class="day-check future"></span>
+                    </div>
+                    <div class="calendar-day">
+                        <span class="day-label">日</span>
+                        <span class="day-check future"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建习惯弹窗 -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <h3 class="modal-title">新建习惯</h3>
+
+            <div class="form-group">
+                <label class="form-label">习惯名称</label>
+                <input type="text" class="form-input" placeholder="例如：阅读30分钟">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">选择图标</label>
+                <div class="icon-selector">
+                    <div class="icon-option selected">📚</div>
+                    <div class="icon-option">💪</div>
+                    <div class="icon-option">🎨</div>
+                    <div class="icon-option">🎵</div>
+                    <div class="icon-option">✍️</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">打卡频率</label>
+                <div class="frequency-options">
+                    <div class="freq-option selected">每日</div>
+                    <div class="freq-option">每周3次</div>
+                    <div class="freq-option">每周5次</div>
+                    <div class="freq-option">工作日</div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-secondary" onclick="hideModal()">取消</button>
+                <button class="modal-btn modal-btn-primary" onclick="createHabit()">创建习惯</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showModal() {
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function hideModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        document.querySelectorAll('.freq-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                document.querySelectorAll('.freq-option').forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+            });
+        });
+
+        document.querySelectorAll('.icon-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                document.querySelectorAll('.icon-option').forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+            });
+        });
+
+        function createHabit() {
+            hideModal();
+            alert('习惯创建成功！');
+        }
+    </script>
+
+    <!-- 底部导航 -->
+    <nav class="bottom-nav">
+        <a href="parent-dashboard.html" class="nav-item">
+            <span class="nav-item-icon">🏠</span>
+            <span class="nav-item-text">首页</span>
+        </a>
+        <a href="parent-create-plan.html" class="nav-item">
+            <span class="nav-item-icon">📋</span>
+            <span class="nav-item-text">计划</span>
+        </a>
+        <a href="parent-statistics.html" class="nav-item">
+            <span class="nav-item-icon">📊</span>
+            <span class="nav-item-text">统计</span>
+        </a>
+        <a href="settings.html" class="nav-item">
+            <span class="nav-item-icon">👤</span>
+            <span class="nav-item-text">我的</span>
+        </a>
+    </nav>
+</body>
+</html>

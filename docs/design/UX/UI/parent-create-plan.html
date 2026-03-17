@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TimeManager - 家长端 - 创建计划</title>
+    <style>
+        :root {
+            --color-primary: #6366F1;
+            --color-primary-hover: #4F46E5;
+            --color-primary-light: #E0E7FF;
+            --color-success: #22C55E;
+            --color-warning: #F59E0B;
+            --color-bg: #F8FAFC;
+            --color-surface: #FFFFFF;
+            --color-border: #E2E8F0;
+            --color-text-primary: #1E293B;
+            --color-text-secondary: #64748B;
+            --color-text-tertiary: #94A3B8;
+            --font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-family); background: var(--color-bg); min-height: 100vh; }
+
+        .app-container { max-width: 414px; margin: 0 auto; min-height: 100vh; background: var(--color-bg); display: flex; flex-direction: column; }
+
+        /* 头部 */
+        .header {
+            height: 56px;
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .header-title { font-size: 18px; font-weight: 600; flex: 1; }
+
+        /* 内容区 */
+        .content { flex: 1; padding: 16px; overflow-y: auto; }
+
+        /* 步骤指示器 */
+        .steps { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 24px; }
+        .step { width: 32px; height: 32px; border-radius: 50%; background: var(--color-border); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: var(--color-text-secondary); }
+        .step.active { background: var(--color-primary); color: white; }
+        .step.completed { background: var(--color-success); color: white; }
+        .step-line { width: 40px; height: 2px; background: var(--color-border); }
+        .step-line.completed { background: var(--color-success); }
+
+        /* 选择模板 */
+        .section-title { font-size: 16px; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 16px; }
+
+        .template-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .template-card:hover, .template-card.selected {
+            border-color: var(--color-primary);
+            box-shadow: 0 4px 12px rgba(99,102,241,0.15);
+        }
+
+        .template-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .template-icon.study { background: #DBEAFE; }
+        .template-icon.exam { background: #FEF3C7; }
+        .template-icon.vacation { background: #F3E8FF; }
+        .template-icon.custom { background: #F1F5F9; }
+
+        .template-info { flex: 1; }
+        .template-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+        .template-desc { font-size: 14px; color: var(--color-text-secondary); }
+        .template-action { font-size: 14px; color: var(--color-primary); font-weight: 500; }
+
+        /* 任务列表 */
+        .task-list { margin-top: 24px; }
+        .task-list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .task-list-title { font-size: 18px; font-weight: 600; }
+        .task-count { font-size: 14px; color: var(--color-text-secondary); }
+
+        .task-item {
+            background: var(--color-surface);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .task-drag { color: var(--color-text-tertiary); cursor: grab; font-size: 16px; }
+        .task-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .task-icon.math { background: #DBEAFE; }
+        .task-icon.chinese { background: #DCFCE7; }
+        .task-icon.english { background: #FEF3C7; }
+
+        .task-info { flex: 1; }
+        .task-name { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+        .task-meta { font-size: 12px; color: var(--color-text-secondary); display: flex; gap: 12px; }
+        .task-priority { padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+        .task-priority.high { background: #FEE2E2; color: #DC2626; }
+        .task-priority.medium { background: #FEF3C7; color: #D97706; }
+        .task-priority.low { background: #DCFCE7; color: #16A34A; }
+
+        .task-menu { width: 32px; height: 32px; border: none; background: transparent; cursor: pointer; color: var(--color-text-tertiary); font-size: 18px; }
+
+        /* 添加任务按钮 */
+        .add-task-btn {
+            width: 100%;
+            height: 56px;
+            border: 2px dashed var(--color-border);
+            border-radius: 12px;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 16px;
+            color: var(--color-primary);
+            cursor: pointer;
+            margin: 16px 0;
+            transition: all 0.15s;
+        }
+
+        .add-task-btn:hover { border-color: var(--color-primary); background: var(--color-primary-light); }
+
+        /* 底部导航 */
+        .bottom-nav {
+            height: 64px;
+            background: var(--color-surface);
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px 16px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .nav-item-icon { font-size: 24px; color: var(--color-text-tertiary); }
+        .nav-item-text { font-size: 10px; color: var(--color-text-tertiary); }
+        .nav-item.active .nav-item-icon, .nav-item.active .nav-item-text { color: var(--color-primary); }
+
+        /* 打卡项区域 */
+        .checkin-section { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--color-border); }
+        .checkin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+
+        .checkin-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--color-surface);
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+
+        .checkin-checkbox { width: 20px; height: 20px; border: 2px solid var(--color-border); border-radius: 6px; cursor: pointer; }
+        .checkin-text { flex: 1; font-size: 15px; }
+        .checkin-delete { color: var(--color-text-tertiary); cursor: pointer; font-size: 18px; }
+
+        /* AI识别弹窗 */
+        .ai-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .ai-modal-overlay.active { display: flex; }
+
+        .ai-modal {
+            background: var(--color-surface);
+            width: 100%;
+            max-width: 414px;
+            border-radius: 20px 20px 0 0;
+            padding: 24px;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .ai-modal-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+        .ai-modal-subtitle { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 20px; }
+
+        .ai-input-area {
+            background: var(--color-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .ai-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            font-family: inherit;
+            resize: none;
+            height: 80px;
+        }
+
+        .ai-input:focus { outline: none; }
+
+        .ai-voice-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            background: var(--color-primary);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            margin: 0 auto 20px;
+            display: block;
+            transition: all 0.2s;
+        }
+
+        .ai-voice-btn:active { transform: scale(0.95); }
+
+        .ai-result { background: #F0FDF4; border-radius: 12px; padding: 16px; margin-bottom: 20px; }
+        .ai-result-title { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 8px; }
+        .ai-result-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #BBF7D0; }
+        .ai-result-item:last-child { border-bottom: none; }
+
+        .ai-actions { display: flex; gap: 12px; }
+        .ai-btn { flex: 1; height: 48px; border-radius: 12px; border: none; font-size: 16px; font-weight: 500; cursor: pointer; }
+        .ai-btn-secondary { background: var(--color-bg); color: var(--color-text-primary); }
+        .ai-btn-primary { background: var(--color-primary); color: white; }
+
+        /* 底部操作栏 */
+        .bottom-bar {
+            background: var(--color-surface);
+            border-top: 1px solid var(--color-border);
+            padding: 16px 24px calc(16px + env(safe-area-inset-bottom));
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn { flex: 1; height: 48px; border-radius: 12px; border: none; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+        .btn-secondary { background: var(--color-bg); color: var(--color-text-primary); }
+        .btn-primary { background: var(--color-primary); color: white; }
+        .btn-primary:hover { background: var(--color-primary-hover); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* 页面切换 */
+        .page { display: none; }
+        .page.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <button class="back-btn" onclick="history.back()">←</button>
+            <h1 class="header-title">创建计划</h1>
+        </header>
+
+        <div class="content">
+            <!-- 步骤指示 -->
+            <div class="steps">
+                <div class="step completed">✓</div>
+                <div class="step-line completed"></div>
+                <div class="step active">2</div>
+                <div class="step-line"></div>
+                <div class="step">3</div>
+            </div>
+
+            <!-- 选择模板 -->
+            <div class="section-title">选择场景模板</div>
+
+            <div class="template-card selected" onclick="selectTemplate(this)">
+                <div class="template-icon study">📚</div>
+                <div class="template-info">
+                    <div class="template-name">日常学习</div>
+                    <div class="template-desc">每日2-3个番茄钟 · 适合平时课后</div>
+                </div>
+                <div class="template-action">已选择</div>
+            </div>
+
+            <div class="template-card" onclick="selectTemplate(this)">
+                <div class="template-icon exam">📝</div>
+                <div class="template-info">
+                    <div class="template-name">考试复习</div>
+                    <div class="template-desc">每日4-6个番茄钟 · 适合期中期末冲刺</div>
+                </div>
+                <div class="template-action">使用模板 →</div>
+            </div>
+
+            <div class="template-card" onclick="selectTemplate(this)">
+                <div class="template-icon vacation">🏖️</div>
+                <div class="template-info">
+                    <div class="template-name">寒暑假</div>
+                    <div class="template-desc">弹性安排 · 自主规划</div>
+                </div>
+                <div class="template-action">使用模板 →</div>
+            </div>
+
+            <div class="template-card" onclick="selectTemplate(this)">
+                <div class="template-icon custom">✏️</div>
+                <div class="template-info">
+                    <div class="template-name">自定义</div>
+                    <div class="template-desc">完全自定义任务列表</div>
+                </div>
+                <div class="template-action">开始创建 →</div>
+            </div>
+
+            <!-- 任务列表 -->
+            <div class="task-list">
+                <div class="task-list-header">
+                    <span class="task-list-title">任务列表</span>
+                    <span class="task-count">共4个任务</span>
+                </div>
+
+                <div class="task-item">
+                    <span class="task-drag">☰</span>
+                    <div class="task-icon math">📐</div>
+                    <div class="task-info">
+                        <div class="task-name">数学练习册 P25-28</div>
+                        <div class="task-meta">
+                            <span>⏱️ 25分钟</span>
+                            <span class="task-priority high">高</span>
+                        </div>
+                    </div>
+                    <button class="task-menu">⋮</button>
+                </div>
+
+                <div class="task-item">
+                    <span class="task-drag">☰</span>
+                    <div class="task-icon chinese">📘</div>
+                    <div class="task-info">
+                        <div class="task-name">语文背诵 古诗二首</div>
+                        <div class="task-meta">
+                            <span>⏱️ 15分钟</span>
+                            <span class="task-priority medium">中</span>
+                        </div>
+                    </div>
+                    <button class="task-menu">⋮</button>
+                </div>
+
+                <div class="task-item">
+                    <span class="task-drag">☰</span>
+                    <div class="task-icon english">🔤</div>
+                    <div class="task-info">
+                        <div class="task-name">英语单词 Unit 3</div>
+                        <div class="task-meta">
+                            <span>⏱️ 20分钟</span>
+                            <span class="task-priority medium">中</span>
+                        </div>
+                    </div>
+                    <button class="task-menu">⋮</button>
+                </div>
+            </div>
+
+            <button class="add-task-btn" onclick="showAIModal()">
+                <span>+</span>
+                <span>添加任务（支持AI识别）</span>
+            </button>
+
+            <!-- 打卡项 -->
+            <div class="checkin-section">
+                <div class="checkin-header">
+                    <span class="task-list-title">打卡项</span>
+                </div>
+
+                <div class="checkin-item">
+                    <div class="checkin-checkbox"></div>
+                    <span class="checkin-text">早睡早起</span>
+                    <span class="checkin-delete">×</span>
+                </div>
+
+                <div class="checkin-item">
+                    <div class="checkin-checkbox"></div>
+                    <span class="checkin-text">整理书包</span>
+                    <span class="checkin-delete">×</span>
+                </div>
+
+                <button class="add-task-btn" style="margin-top: 8px;">
+                    <span>+</span>
+                    <span>添加打卡项</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="bottom-bar">
+            <button class="btn btn-secondary" onclick="saveAsTemplate()">保存为模板</button>
+            <button class="btn btn-primary" onclick="pushToChild()">确认推送</button>
+        </div>
+
+        <!-- 底部导航 -->
+        <nav class="bottom-nav">
+            <a href="parent-dashboard.html" class="nav-item">
+                <span class="nav-item-icon">🏠</span>
+                <span class="nav-item-text">首页</span>
+            </a>
+            <a href="parent-create-plan.html" class="nav-item active">
+                <span class="nav-item-icon">📋</span>
+                <span class="nav-item-text">计划</span>
+            </a>
+            <a href="parent-statistics.html" class="nav-item">
+                <span class="nav-item-icon">📊</span>
+                <span class="nav-item-text">统计</span>
+            </a>
+            <a href="settings.html" class="nav-item">
+                <span class="nav-item-icon">👤</span>
+                <span class="nav-item-text">我的</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- AI识别弹窗 -->
+    <div class="ai-modal-overlay" id="aiModal">
+        <div class="ai-modal">
+            <h3 class="ai-modal-title">添加任务</h3>
+            <p class="ai-modal-subtitle">输入任务描述，AI会自动识别学科和预估时长</p>
+
+            <div class="ai-input-area">
+                <textarea class="ai-input" placeholder="例如：《补》第2页、口算P5、背诵古诗...">《补》第2页</textarea>
+            </div>
+
+            <button class="ai-voice-btn">🎤</button>
+
+            <div class="ai-result" id="aiResult" style="display: none;">
+                <div class="ai-result-title">AI识别结果</div>
+                <div class="ai-result-item">
+                    <span>任务</span>
+                    <span style="font-weight: 500;">语文补充习题 第2页</span>
+                </div>
+                <div class="ai-result-item">
+                    <span>学科</span>
+                    <span>语文</span>
+                </div>
+                <div class="ai-result-item">
+                    <span>预估时长</span>
+                    <span>15分钟 ⚙️</span>
+                </div>
+            </div>
+
+            <div class="ai-actions">
+                <button class="ai-btn ai-btn-secondary" onclick="hideAIModal()">取消</button>
+                <button class="ai-btn ai-btn-primary" onclick="confirmAddTask()">确认添加</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 选择模板
+        function selectTemplate(card) {
+            document.querySelectorAll('.template-card').forEach(c => {
+                c.classList.remove('selected');
+                c.querySelector('.template-action').textContent = '使用模板 →';
+            });
+            card.classList.add('selected');
+            card.querySelector('.template-action').textContent = '已选择';
+        }
+
+        // 显示AI弹窗
+        function showAIModal() {
+            document.getElementById('aiModal').classList.add('active');
+            // 模拟AI识别延迟
+            setTimeout(() => {
+                document.getElementById('aiResult').style.display = 'block';
+            }, 500);
+        }
+
+        // 隐藏AI弹窗
+        function hideAIModal() {
+            document.getElementById('aiModal').classList.remove('active');
+        }
+
+        // 确认添加任务
+        function confirmAddTask() {
+            hideAIModal();
+            alert('任务已添加！');
+        }
+
+        // 保存为模板
+        function saveAsTemplate() {
+            const name = prompt('请输入模板名称：', '小明日常学习');
+            if (name) {
+                alert(`模板"${name}"已保存！`);
+            }
+        }
+
+        // 推送到孩子端
+        function pushToChild() {
+            if (confirm('确定要将此计划推送到孩子端吗？')) {
+                alert('计划已成功推送！孩子将在下次打开APP时看到新计划。');
+                window.location.href = 'parent-dashboard.html';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimeManager App - 交互原型演示</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container { max-width: 900px; margin: 0 auto; }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 { font-size: 36px; margin-bottom: 12px; }
+        .header p { font-size: 16px; opacity: 0.9; }
+
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .page-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .page-card {
+            background: #F8FAFC;
+            border: 2px solid #E2E8F0;
+            border-radius: 16px;
+            padding: 20px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .page-card:hover {
+            border-color: #6366F1;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(99,102,241,0.15);
+        }
+
+        .page-name { font-size: 16px; font-weight: 600; color: #1E293B; }
+        .page-desc { font-size: 13px; color: #64748B; line-height: 1.5; }
+
+        .page-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #E0E7FF;
+            color: #6366F1;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            align-self: flex-start;
+            margin-top: auto;
+        }
+
+        .page-tag.parent { background: #FEF3C7; color: #D97706; }
+        .page-tag.child { background: #DCFCE7; color: #16A34A; }
+
+        .demo-tips {
+            background: #F0FDF4;
+            border: 1px solid #BBF7D0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .demo-tips-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #166534;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .demo-tips-list {
+            list-style: none;
+            font-size: 14px;
+            color: #166534;
+            line-height: 2;
+        }
+
+        .demo-tips-list li::before {
+            content: "✓ ";
+            font-weight: bold;
+        }
+
+        .update-log {
+            background: #EFF6FF;
+            border: 1px solid #BFDBFE;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .update-log-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1E40AF;
+            margin-bottom: 12px;
+        }
+
+        .update-log-list {
+            font-size: 14px;
+            color: #1E40AF;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 600px) {
+            .page-grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🍅 TimeManager App</h1>
+            <p>AI时间管理闹钟 - 高保真交互原型 V2.0</p>
+        </header>
+
+        <div class="update-log">
+            <div class="update-log-title">📋 V2.0 更新说明</div>
+            <ul class="update-log-list">
+                <li>家长端首页改版：直观展示孩子今日任务+打卡</li>
+                <li>功能合并：计划管理（含任务+习惯+模板+日历）</li>
+                <li>新增评比功能：周统计关联星星奖励</li>
+                <li>孩子端简化：仅保留"今日任务"和"我的成就"</li>
+                <li>设置页面移至家长端</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-icon">👨‍👩‍👧</div>
+                <span>家长端页面（4个主入口）</span>
+            </div>
+            <div class="page-grid">
+                <a href="parent-dashboard.html" class="page-card">
+                    <span class="page-name">🏠 首页控制台</span>
+                    <span class="page-desc">查看孩子今日任务、打卡状态、快捷操作</span>
+                    <span class="page-tag parent">核心</span>
+                </a>
+                <a href="parent-plan-manage.html" class="page-card">
+                    <span class="page-name">📋 计划管理</span>
+                    <span class="page-desc">今日计划、日历总览、场景模板、任务/习惯管理</span>
+                    <span class="page-tag parent">核心</span>
+                </a>
+                <a href="parent-ranking.html" class="page-card">
+                    <span class="page-name">🏆 本周评比</span>
+                    <span class="page-desc">周统计、任务完成率、习惯打卡、星星奖励</span>
+                    <span class="page-tag parent">激励</span>
+                </a>
+                <a href="parent-statistics.html" class="page-card">
+                    <span class="page-name">📊 数据统计</span>
+                    <span class="page-desc">趋势图表、科目分布、效率分析、长期追踪</span>
+                    <span class="page-tag parent">分析</span>
+                </a>
+                <a href="parent-send-message.html" class="page-card">
+                    <span class="page-name">💬 发送心语</span>
+                    <span class="page-desc">AI推荐评语、快捷表情、鼓励互动</span>
+                    <span class="page-tag parent">互动</span>
+                </a>
+                <a href="settings.html" class="page-card">
+                    <span class="page-name">⚙️ 设置</span>
+                    <span class="page-desc">番茄钟设置、作息管理、通知设置、账号管理</span>
+                    <span class="page-tag parent">系统</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-icon">🧒</div>
+                <span>孩子端页面（简化版）</span>
+            </div>
+            <div class="page-grid">
+                <a href="child-today-tasks.html" class="page-card">
+                    <span class="page-name">📋 今日任务</span>
+                    <span class="page-desc">任务列表、番茄钟计时、打卡项、心语墙</span>
+                    <span class="page-tag child">核心</span>
+                </a>
+                <a href="child-achievements.html" class="page-card">
+                    <span class="page-name">🏆 我的成就</span>
+                    <span class="page-desc">星月太阳、成就日历、历史记录</span>
+                    <span class="page-tag child">激励</span>
+                </a>
+                <a href="child-rest-mode.html" class="page-card">
+                    <span class="page-name">😌 休息模式</span>
+                    <span class="page-desc">护眼模式、休息倒计时、护眼提示</span>
+                    <span class="page-tag child">辅助</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="demo-tips">
+            <div class="demo-tips-title">
+                <span>💡</span>
+                <span>演示说明</span>
+            </div>
+            <ul class="demo-tips-list">
+                <li>建议从「家长端-首页控制台」开始体验</li>
+                <li>点击卡片即可跳转到对应页面</li>
+                <li>各页面底部导航可直接切换</li>
+                <li>所有按钮和交互元素都可以点击测试</li>
+                <li>推荐使用 Chrome/Safari 浏览器获得最佳体验</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

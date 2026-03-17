@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TimeManager - 家长端 - 发送心语</title>
+    <style>
+        :root {
+            --color-primary: #6366F1;
+            --color-success: #22C55E;
+            --color-bg: #F8FAFC;
+            --color-surface: #FFFFFF;
+            --color-border: #E2E8F0;
+            --color-text-primary: #1E293B;
+            --color-text-secondary: #64748B;
+            --font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-family); background: var(--color-bg); min-height: 100vh; }
+
+        .app-container { max-width: 414px; margin: 0 auto; min-height: 100vh; background: var(--color-bg); display: flex; flex-direction: column; }
+
+        /* 头部 */
+        .header {
+            height: 56px;
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .header-title { font-size: 18px; font-weight: 600; flex: 1; }
+
+        /* 内容区 */
+        .content { flex: 1; padding: 16px; overflow-y: auto; }
+
+        /* 今日表现卡片 */
+        .performance-card {
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            border-radius: 16px;
+            padding: 20px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .performance-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .performance-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .perf-stat {
+            text-align: center;
+            padding: 12px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 12px;
+        }
+
+        .perf-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .perf-stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* AI推荐评语 */
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .recommend-card {
+            background: var(--color-surface);
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .recommend-card:hover, .recommend-card.selected {
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
+        }
+
+        .recommend-text {
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--color-text-primary);
+        }
+
+        .recommend-card.selected .recommend-text {
+            color: var(--color-primary);
+            font-weight: 500;
+        }
+
+        /* 自定义输入 */
+        .custom-section { margin-top: 24px; }
+
+        .input-area {
+            background: var(--color-surface);
+            border: 2px solid var(--color-border);
+            border-radius: 16px;
+            padding: 16px;
+            transition: all 0.2s;
+        }
+
+        .input-area:focus-within { border-color: var(--color-primary); }
+
+        .message-input {
+            width: 100%;
+            border: none;
+            font-size: 16px;
+            font-family: inherit;
+            resize: none;
+            min-height: 100px;
+            outline: none;
+        }
+
+        .input-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .char-count {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+
+        .voice-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        /* 快捷表情 */
+        .emoji-section { margin-top: 20px; }
+
+        .emoji-grid {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .emoji-btn {
+            width: 48px;
+            height: 48px;
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            background: var(--color-surface);
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .emoji-btn:hover {
+            border-color: var(--color-primary);
+            transform: scale(1.1);
+        }
+
+        /* 底部按钮 */
+        .bottom-bar {
+            background: var(--color-surface);
+            border-top: 1px solid var(--color-border);
+            padding: 16px 24px calc(16px + env(safe-area-inset-bottom));
+        }
+
+        .send-btn {
+            width: 100%;
+            height: 52px;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.15s;
+        }
+
+        .send-btn:hover { background: #4F46E5; }
+        .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* 成功提示 */
+        .success-toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--color-success);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 20px rgba(34,197,94,0.4);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .success-toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .success-icon { font-size: 24px; }
+        .success-text { font-size: 16px; font-weight: 500; }
+
+        /* 底部导航 */
+        .bottom-nav {
+            height: 64px;
+            background: var(--color-surface);
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px 16px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .nav-item-icon { font-size: 24px; color: var(--color-text-tertiary); }
+        .nav-item-text { font-size: 10px; color: var(--color-text-tertiary); }
+        .nav-item.active .nav-item-icon, .nav-item.active .nav-item-text { color: var(--color-primary); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <button class="back-btn" onclick="history.back()">←</button>
+            <h1 class="header-title">发送心语</h1>
+        </header>
+
+        <div class="content">
+            <!-- 今日表现 -->
+            <div class="performance-card">
+                <div class="performance-title">
+                    <span>🎉</span>
+                    <span>孩子今日表现</span>
+                </div>
+                <div class="performance-stats">
+                    <div class="perf-stat">
+                        <div class="perf-stat-value">4</div>
+                        <div class="perf-stat-label">完成任务</div>
+                    </div>
+                    <div class="perf-stat">
+                        <div class="perf-stat-value">6</div>
+                        <div class="perf-stat-label">番茄钟</div>
+                    </div>
+                    <div class="perf-stat">
+                        <div class="perf-stat-value">150</div>
+                        <div class="perf-stat-label">专注分钟</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI推荐 -->
+            <div class="section-title">💡 AI推荐评语</div>
+
+            <div class="recommend-card" onclick="selectRecommend(this)">
+                <div class="recommend-text">今天效率很高，继续保持！专注的样子最棒了！</div>
+            </div>
+
+            <div class="recommend-card" onclick="selectRecommend(this)">
+                <div class="recommend-text">宝贝今天比平常多完成了1个番茄钟，专注力真棒！妈妈为你骄傲！</div>
+            </div>
+
+            <div class="recommend-card" onclick="selectRecommend(this)">
+                <div class="recommend-text">今天的任务都完成了，真厉害！明天也要加油哦～</div>
+            </div>
+
+            <!-- 自定义输入 -->
+            <div class="custom-section">
+                <div class="section-title">✏️ 自定义评语</div>
+                <div class="input-area">
+                    <textarea class="message-input" id="customInput" placeholder="写下你想对孩子说的话..."></textarea>
+                    <div class="input-actions">
+                        <span class="char-count">0/200</span>
+                        <button class="voice-btn">🎤</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快捷表情 -->
+            <div class="emoji-section">
+                <div class="section-title">😊 添加表情</div>
+                <div class="emoji-grid">
+                    <button class="emoji-btn" onclick="addEmoji('❤️')">❤️</button>
+                    <button class="emoji-btn" onclick="addEmoji('👍')">👍</button>
+                    <button class="emoji-btn" onclick="addEmoji('🌟')">🌟</button>
+                    <button class="emoji-btn" onclick="addEmoji('🎉')">🎉</button>
+                    <button class="emoji-btn" onclick="addEmoji('💪')">💪</button>
+                    <button class="emoji-btn" onclick="addEmoji('🏆')">🏆</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-bar">
+            <button class="send-btn" onclick="sendMessage()">
+                <span>💌</span>
+                <span>发送给孩子</span>
+            </button>
+        </div>
+
+        <!-- 底部导航 -->
+        <nav class="bottom-nav">
+            <a href="parent-dashboard.html" class="nav-item">
+                <span class="nav-item-icon">🏠</span>
+                <span class="nav-item-text">首页</span>
+            </a>
+            <a href="parent-create-plan.html" class="nav-item">
+                <span class="nav-item-icon">📋</span>
+                <span class="nav-item-text">计划</span>
+            </a>
+            <a href="parent-statistics.html" class="nav-item">
+                <span class="nav-item-icon">📊</span>
+                <span class="nav-item-text">统计</span>
+            </a>
+            <a href="settings.html" class="nav-item">
+                <span class="nav-item-icon">👤</span>
+                <span class="nav-item-text">我的</span>
+            </a>
+        </nav>
+    </div>
+
+    <div class="success-toast" id="successToast">
+        <span class="success-icon">✓</span>
+        <span class="success-text">心语已发送！</span>
+    </div>
+
+    <script>
+        const customInput = document.getElementById('customInput');
+        const charCount = document.querySelector('.char-count');
+        let selectedRecommend = null;
+
+        // 选择推荐评语
+        function selectRecommend(card) {
+            document.querySelectorAll('.recommend-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedRecommend = card.querySelector('.recommend-text').textContent;
+            customInput.value = selectedRecommend;
+            updateCharCount();
+        }
+
+        // 输入监听
+        customInput.addEventListener('input', updateCharCount);
+
+        function updateCharCount() {
+            const len = customInput.value.length;
+            charCount.textContent = `${len}/200`;
+            if (len > 200) {
+                charCount.style.color = '#EF4444';
+            } else {
+                charCount.style.color = '#64748B';
+            }
+        }
+
+        // 添加表情
+        function addEmoji(emoji) {
+            customInput.value += emoji;
+            updateCharCount();
+        }
+
+        // 发送消息
+        function sendMessage() {
+            if (!customInput.value.trim()) {
+                alert('请输入评语内容');
+                return;
+            }
+
+            const toast = document.getElementById('successToast');
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                window.location.href = 'parent-dashboard.html';
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

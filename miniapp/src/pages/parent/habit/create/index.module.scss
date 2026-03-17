@@ -1,0 +1,183 @@
+.container {
+  min-height: 100vh;
+  background: var(--color-bg, #F8FAFC);
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 32px 48px;
+  background: var(--color-surface, #FFFFFF);
+  border-bottom: 2px solid var(--color-border, #E2E8F0);
+  flex-shrink: 0;
+}
+
+.backBtn {
+  font-size: 40px;
+  cursor: pointer;
+  color: var(--color-text-primary, #1E293B);
+  padding: 8px;
+}
+
+.headerTitle {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--color-text-primary, #1E293B);
+}
+
+.content {
+  flex: 1;
+  padding: 48px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formLabel {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--color-text-primary, #1E293B);
+}
+
+.formInput {
+  background: var(--color-surface, #FFFFFF);
+  border: 2px solid var(--color-border, #E2E8F0);
+  border-radius: 16px;
+  padding: 28px 32px;
+  font-size: 28px;
+  color: var(--color-text-primary, #1E293B);
+}
+
+.errorText {
+  font-size: 24px;
+  color: #EF4444;
+}
+
+.iconGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.iconOption {
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface, #FFFFFF);
+  border: 2px solid var(--color-border, #E2E8F0);
+  border-radius: 20px;
+  font-size: 44px;
+  cursor: pointer;
+}
+
+.iconSelected {
+  border-color: var(--color-primary, #6366F1);
+  background: #EEF2FF;
+}
+
+.frequencyRow {
+  display: flex;
+  gap: 24px;
+}
+
+.freqOption {
+  flex: 1;
+  padding: 28px;
+  text-align: center;
+  border: 2px solid var(--color-border, #E2E8F0);
+  border-radius: 16px;
+  font-size: 28px;
+  color: var(--color-text-secondary, #64748B);
+  cursor: pointer;
+}
+
+.freqSelected {
+  border-color: var(--color-primary, #6366F1);
+  background: #EEF2FF;
+  color: var(--color-primary, #6366F1);
+  font-weight: 600;
+}
+
+.weekdayRow {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.weekdayBtn {
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-border, #E2E8F0);
+  border-radius: 50%;
+  font-size: 24px;
+  color: var(--color-text-secondary, #64748B);
+  cursor: pointer;
+}
+
+.weekdaySelected {
+  border-color: var(--color-primary, #6366F1);
+  background: var(--color-primary, #6366F1);
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.starsRow {
+  display: flex;
+  gap: 24px;
+}
+
+.starOption {
+  flex: 1;
+  padding: 24px;
+  text-align: center;
+  border: 2px solid var(--color-border, #E2E8F0);
+  border-radius: 16px;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.starSelected {
+  border-color: #F59E0B;
+  background: #FFFBEB;
+}
+
+.footer {
+  padding: 32px 48px;
+  background: var(--color-surface, #FFFFFF);
+  border-top: 2px solid var(--color-border, #E2E8F0);
+}
+
+.saveBtn {
+  background: var(--color-primary, #6366F1);
+  border-radius: 20px;
+  padding: 36px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.saveBtnDisabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.saveBtnText {
+  font-size: 32px;
+  font-weight: 700;
+  color: #FFFFFF;
+}

@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/07/schema#",
+  "name": "TimeManagerApp Design Tokens",
+  "version": "2.0.0",
+  "platform": "mobile-web",
+  "tokens": {
+    "color": {
+      "brand": {
+        "primary": {
+          "value": "#6366F1",
+          "rgb": "99, 102, 241",
+          "description": "主品牌色，用于主按钮、Tab激活态"
+        },
+        "primaryHover": {
+          "value": "#4F46E5",
+          "rgb": "79, 70, 229",
+          "description": "主色悬停态"
+        },
+        "primaryLight": {
+          "value": "#E0E7FF",
+          "rgb": "224, 231, 255",
+          "description": "主色浅色背景"
+        }
+      },
+      "semantic": {
+        "success": {
+          "value": "#22C55E",
+          "rgb": "34, 197, 94",
+          "description": "成功状态"
+        },
+        "warning": {
+          "value": "#F59E0B",
+          "rgb": "245, 158, 11",
+          "description": "警告状态"
+        },
+        "error": {
+          "value": "#EF4444",
+          "rgb": "239, 68, 68",
+          "description": "错误状态"
+        }
+      },
+      "pomodoro": {
+        "safe": {
+          "value": "#22C55E",
+          "description": "番茄钟-充足时间 >60%"
+        },
+        "warning": {
+          "value": "#F59E0B",
+          "description": "番茄钟-警告时间 30%-60%"
+        },
+        "urgent": {
+          "value": "#EF4444",
+          "description": "番茄钟-紧急时间 <30%"
+        }
+      },
+      "neutral": {
+        "bg": {
+          "value": "#F8FAFC",
+          "rgb": "248, 250, 252",
+          "description": "页面背景"
+        },
+        "surface": {
+          "value": "#FFFFFF",
+          "description": "卡片背景"
+        },
+        "border": {
+          "value": "#E2E8F0",
+          "rgb": "226, 232, 240",
+          "description": "边框、分割线"
+        }
+      },
+      "text": {
+        "primary": {
+          "value": "#1E293B",
+          "rgb": "30, 41, 59",
+          "description": "主要文字"
+        },
+        "secondary": {
+          "value": "#64748B",
+          "rgb": "100, 116, 139",
+          "description": "次要文字"
+        },
+        "tertiary": {
+          "value": "#94A3B8",
+          "rgb": "148, 163, 184",
+          "description": "占位文字"
+        }
+      },
+      "achievement": {
+        "star": {
+          "value": "#FBBF24",
+          "description": "星星奖励"
+        },
+        "moon": {
+          "value": "#A78BFA",
+          "description": "月亮奖励"
+        },
+        "sun": {
+          "value": "#F59E0B",
+          "description": "太阳奖励"
+        }
+      },
+      "subject": {
+        "math": {
+          "fg": "#3B82F6",
+          "bg": "#DBEAFE"
+        },
+        "chinese": {
+          "fg": "#22C55E",
+          "bg": "#DCFCE7"
+        },
+        "english": {
+          "fg": "#F59E0B",
+          "bg": "#FEF3C7"
+        },
+        "other": {
+          "fg": "#A855F7",
+          "bg": "#F3E8FF"
+        }
+      }
+    },
+    "typography": {
+      "fontFamily": {
+        "base": "-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', sans-serif",
+        "mono": "'SF Mono', Consolas, Monaco, monospace"
+      },
+      "fontSize": {
+        "h1": { "value": "20px", "lineHeight": "28px", "weight": 600 },
+        "h2": { "value": "16px", "lineHeight": "24px", "weight": 600 },
+        "h3": { "value": "15px", "lineHeight": "22px", "weight": 500 },
+        "body": { "value": "14px", "lineHeight": "20px", "weight": 400 },
+        "caption": { "value": "12px", "lineHeight": "16px", "weight": 400 },
+        "small": { "value": "11px", "lineHeight": "14px", "weight": 400 }
+      }
+    },
+    "spacing": {
+      "1": { "value": "4px", "description": "极窄间距" },
+      "2": { "value": "8px", "description": "紧凑间距" },
+      "3": { "value": "12px", "description": "标准间距" },
+      "4": { "value": "16px", "description": "页面边距" },
+      "5": { "value": "20px", "description": "宽松间距" },
+      "6": { "value": "24px", "description": "区块间距" },
+      "8": { "value": "32px", "description": "大区块间距" },
+      "10": { "value": "40px", "description": "超大间距" }
+    },
+    "borderRadius": {
+      "sm": { "value": "4px", "description": "小按钮、标签" },
+      "md": { "value": "8px", "description": "标准卡片、输入框" },
+      "lg": { "value": "12px", "description": "大卡片、按钮" },
+      "xl": { "value": "16px", "description": "页面容器" },
+      "full": { "value": "9999px", "description": "圆形、胶囊" }
+    },
+    "shadow": {
+      "sm": {
+        "value": "0 1px 2px rgba(0,0,0,0.05)",
+        "description": "微妙层次"
+      },
+      "md": {
+        "value": "0 4px 6px rgba(0,0,0,0.07)",
+        "description": "悬浮卡片"
+      },
+      "lg": {
+        "value": "0 10px 15px rgba(0,0,0,0.1)",
+        "description": "下拉菜单"
+      },
+      "card": {
+        "value": "0 2px 8px rgba(0,0,0,0.08)",
+        "description": "标准卡片"
+      },
+      "highlight": {
+        "value": "0 4px 12px rgba(99,102,241,0.15)",
+        "description": "选中态高亮"
+      }
+    },
+    "size": {
+      "headerHeight": { "value": "56px", "description": "页面头部高度" },
+      "bottomNavHeight": { "value": "64px", "description": "底部导航高度" },
+      "tabHeight": { "value": "48px", "description": "Tab导航高度" },
+      "buttonPrimaryHeight": { "value": "48px", "description": "主按钮高度" },
+      "buttonSecondaryHeight": { "value": "40px", "description": "次按钮高度" },
+      "inputHeight": { "value": "48px", "description": "输入框高度" },
+      "iconButtonSize": { "value": "48px", "description": "图标按钮尺寸" },
+      "iconSize": { "value": "24px", "description": "标准图标尺寸" },
+      "maxContainerWidth": { "value": "414px", "description": "最大容器宽度" }
+    },
+    "animation": {
+      "duration": {
+        "fast": { "value": "150ms", "description": "按钮悬停" },
+        "normal": { "value": "200ms", "description": "Tab切换、卡片" },
+        "slow": { "value": "300ms", "description": "页面切换" }
+      },
+      "easing": {
+        "default": "ease",
+        "inOut": "ease-in-out",
+        "bounce": "cubic-bezier(0.4, 0, 0.2, 1)"
+      }
+    }
+  },
+  "platforms": {
+    "css": {
+      "transform": "kebab-case",
+      "prefix": ""
+    },
+    "scss": {
+      "transform": "kebab-case",
+      "prefix": "$"
+    },
+    "js": {
+      "transform": "camelCase",
+      "export": "ESModule"
+    },
+    "tailwind": {
+      "extend": "theme.extend"
+    }
+  }
+}

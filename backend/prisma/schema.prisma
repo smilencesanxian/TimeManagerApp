@@ -1,0 +1,164 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  openid       String?  @unique
+  phone        String?  @unique
+  passwordHash String?  @map("password_hash")
+  nickname     String
+  avatarUrl    String?  @map("avatar_url")
+  role         String   // "parent" | "child"
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  parentFamilies Family[] @relation("ParentFamilies")
+  childFamilies  Family[] @relation("ChildFamilies")
+  tasks          Task[]   @relation("ChildTasks")
+  createdTasks   Task[]   @relation("CreatedTasks")
+  pomodoroSessions PomodoroSession[]
+  achievements   Achievement[]
+  notifications  Notification[]
+  habits         Habit[]         @relation("ChildHabits")
+  createdHabits  Habit[]         @relation("CreatedHabits")
+  habitCheckins  HabitCheckin[]  @relation("ChildCheckins")
+
+  @@map("users")
+}
+
+model Family {
+  id        String   @id @default(uuid())
+  parentId  String   @map("parent_id")
+  childId   String   @map("child_id")
+  inviteCode String? @unique @map("invite_code")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  parent User @relation("ParentFamilies", fields: [parentId], references: [id], onDelete: Cascade)
+  child  User @relation("ChildFamilies", fields: [childId], references: [id], onDelete: Cascade)
+
+  @@unique([parentId, childId])
+  @@map("families")
+}
+
+model Task {
+  id          String    @id @default(uuid())
+  childId     String    @map("child_id")
+  createdById String    @map("created_by_id")
+  date        String    // YYYY-MM-DD
+  subject     String    // "语文"|"数学"|"英语"|"阅读"|"运动"|"其他"
+  title       String
+  description String?
+  duration    Int       // minutes
+  status      String    @default("todo")  // "todo"|"doing"|"done"|"paused"
+  priority    Int       @default(2)       // 1=high, 2=medium, 3=low
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  child       User      @relation("ChildTasks", fields: [childId], references: [id], onDelete: Cascade)
+  createdBy   User      @relation("CreatedTasks", fields: [createdById], references: [id])
+  pomodoroSessions PomodoroSession[]
+
+  @@map("tasks")
+}
+
+model PomodoroSession {
+  id          String    @id @default(uuid())
+  taskId      String    @map("task_id")
+  userId      String    @map("user_id")
+  type        String    // "focus"|"break"
+  durationMin Int       @map("duration_min")
+  startedAt   DateTime  @map("started_at")
+  endedAt     DateTime? @map("ended_at")
+  completed   Boolean   @default(false)
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("pomodoro_sessions")
+}
+
+model Achievement {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  date        String   // YYYY-MM-DD
+  stars       Int      @default(0)
+  moons       Int      @default(0)
+  suns        Int      @default(0)
+  totalFocusMin Int    @default(0) @map("total_focus_min")
+  tasksCompleted Int   @default(0) @map("tasks_completed")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@map("achievements")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  type      String   // "new_task"|"task_done"|"parent_comment"|"achievement"
+  title     String
+  body      String
+  data      String?  // JSON string
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model Habit {
+  id           String   @id @default(uuid())
+  childId      String   @map("child_id")
+  createdById  String   @map("created_by_id")
+  name         String
+  icon         String   @default("📚")
+  frequency    String   @default("daily")  // "daily" | "weekly"
+  weekdays     String?  // JSON array string "[1,3,5]" for weekly
+  rewardStars  Int      @default(1) @map("reward_stars")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  child      User           @relation("ChildHabits", fields: [childId], references: [id], onDelete: Cascade)
+  createdBy  User           @relation("CreatedHabits", fields: [createdById], references: [id])
+  checkins   HabitCheckin[]
+
+  @@map("habits")
+}
+
+model HabitCheckin {
+  id        String   @id @default(uuid())
+  habitId   String   @map("habit_id")
+  childId   String   @map("child_id")
+  date      String   // YYYY-MM-DD
+  createdAt DateTime @default(now()) @map("created_at")
+
+  habit  Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  child  User  @relation("ChildCheckins", fields: [childId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, childId, date])
+  @@map("habit_checkins")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("refresh_tokens")
+}

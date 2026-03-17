@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TimeManager - 家长端 - 本周评比</title>
+    <style>
+        :root {
+            --color-primary: #6366F1;
+            --color-success: #22C55E;
+            --color-warning: #F59E0B;
+            --color-star: #FBBF24;
+            --color-bg: #F8FAFC;
+            --color-surface: #FFFFFF;
+            --color-border: #E2E8F0;
+            --color-text-primary: #1E293B;
+            --color-text-secondary: #64748B;
+            --font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-family); background: var(--color-bg); min-height: 100vh; }
+
+        .app-container { max-width: 414px; margin: 0 auto; min-height: 100vh; background: var(--color-bg); display: flex; flex-direction: column; }
+
+        /* 头部 */
+        .header {
+            height: 56px;
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .header-title { font-size: 18px; font-weight: 600; flex: 1; }
+
+        /* 周选择 */
+        .week-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .week-nav {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--color-bg);
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .week-text { font-size: 16px; font-weight: 600; }
+
+        /* 内容区 */
+        .content { flex: 1; padding: 16px; overflow-y: auto; }
+
+        /* 总评卡片 */
+        .summary-card {
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            border-radius: 16px;
+            padding: 20px;
+            color: white;
+            margin-bottom: 16px;
+        }
+
+        .summary-title {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 16px;
+        }
+
+        .summary-stats {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+
+        .summary-item {}
+        .summary-value { font-size: 36px; font-weight: 700; margin-bottom: 4px; }
+        .summary-label { font-size: 13px; opacity: 0.9; }
+
+        /* 星星详情 */
+        .stars-detail {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            padding: 16px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 12px;
+            margin-top: 16px;
+        }
+
+        .stars-item { text-align: center; }
+        .stars-icon { font-size: 28px; }
+        .stars-count { font-size: 20px; font-weight: 600; margin-top: 4px; }
+
+        /* 评比卡片 */
+        .rank-card {
+            background: var(--color-surface);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .rank-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .rank-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--color-bg);
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+
+        .rank-item:last-child { margin-bottom: 0; }
+
+        .rank-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            background: #FEF3C7;
+            color: #D97706;
+        }
+
+        .rank-badge.gold { background: #FEF3C7; color: #D97706; }
+        .rank-badge.silver { background: #F1F5F9; color: #64748B; }
+
+        .rank-info { flex: 1; }
+        .rank-name { font-size: 15px; font-weight: 500; }
+        .rank-desc { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+
+        .rank-reward {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+            color: var(--color-star);
+            font-weight: 600;
+        }
+
+        .rank-status {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .rank-status.excellent { background: #DCFCE7; color: #16A34A; }
+        .rank-status.good { background: #FEF3C7; color: #D97706; }
+        .rank-status.normal { background: #F1F5F9; color: var(--color-text-secondary); }
+
+        /* 习惯统计 */
+        .habit-stat {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--color-bg);
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+
+        .habit-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            background: #DBEAFE;
+        }
+
+        .habit-info { flex: 1; }
+        .habit-name { font-size: 14px; font-weight: 500; }
+        .habit-progress { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+
+        .habit-result {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .habit-result.excellent { background: #DCFCE7; color: #16A34A; }
+        .habit-result.good { background: #FEF3C7; color: #D97706; }
+
+        /* 底部奖励 */
+        .reward-section {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .reward-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #92400E;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reward-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .reward-stars { font-size: 40px; }
+        .reward-text { flex: 1; }
+        .reward-main { font-size: 18px; font-weight: 600; color: #78350F; }
+        .reward-sub { font-size: 13px; color: #92400E; margin-top: 4px; }
+
+        /* 底部导航 */
+        .bottom-nav {
+            height: 64px;
+            background: var(--color-surface);
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px 16px;
+            text-decoration: none;
+            color: var(--color-text-secondary);
+        }
+
+        .nav-item.active { color: var(--color-primary); }
+        .nav-item-icon { font-size: 24px; }
+        .nav-item-text { font-size: 10px; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <button class="back-btn" onclick="history.back()">←</button>
+            <h1 class="header-title">本周评比</h1>
+        </header>
+
+        <!-- 周选择 -->
+        <div class="week-selector">
+            <button class="week-nav">◀</button>
+            <span class="week-text">3月第2周 (3.9-3.15)</span>
+            <button class="week-nav">▶</button>
+        </div>
+
+        <div class="content">
+            <!-- 总评 -->
+            <div class="summary-card">
+                <div class="summary-title">📊 本周综合表现</div>
+                <div class="summary-stats">
+                    <div class="summary-item">
+                        <div class="summary-value">18</div>
+                        <div class="summary-label">总星星</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value">85%</div>
+                        <div class="summary-label">任务完成率</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value">21</div>
+                        <div class="summary-label">番茄钟</div>
+                    </div>
+                </div>
+                <div class="stars-detail">
+                    <div class="stars-item">
+                        <div class="stars-icon">⭐</div>
+                        <div class="stars-count">18</div>
+                    </div>
+                    <div class="stars-item">
+                        <div class="stars-icon">🌙</div>
+                        <div class="stars-count">1</div>
+                    </div>
+                    <div class="stars-item">
+                        <div class="stars-icon">☀️</div>
+                        <div class="stars-count">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 任务完成情况 -->
+            <div class="rank-card">
+                <div class="rank-header">📚 任务完成情况</div>
+
+                <div class="rank-item">
+                    <div class="rank-badge gold">1</div>
+                    <div class="rank-info">
+                        <div class="rank-name">数学作业</div>
+                        <div class="rank-desc">5次任务全部完成</div>
+                    </div>
+                    <span class="rank-reward">+5⭐</span>
+                    <span class="rank-status excellent">超额</span>
+                </div>
+
+                <div class="rank-item">
+                    <div class="rank-badge gold">2</div>
+                    <div class="rank-info">
+                        <div class="rank-name">语文背诵</div>
+                        <div class="rank-desc">5次任务全部完成</div>
+                    </div>
+                    <span class="rank-reward">+5⭐</span>
+                    <span class="rank-status excellent">超额</span>
+                </div>
+
+                <div class="rank-item">
+                    <div class="rank-badge silver">3</div>
+                    <div class="rank-info">
+                        <div class="rank-name">英语单词</div>
+                        <div class="rank-desc">完成4/5次</div>
+                    </div>
+                    <span class="rank-reward">+4⭐</span>
+                    <span class="rank-status good">达标</span>
+                </div>
+            </div>
+
+            <!-- 习惯打卡 -->
+            <div class="rank-card">
+                <div class="rank-header">☑️ 习惯打卡统计</div>
+
+                <div class="habit-stat">
+                    <div class="habit-icon">🌙</div>
+                    <div class="habit-info">
+                        <div class="habit-name">早睡早起</div>
+                        <div class="habit-progress">7天全勤 · 连续打卡7天 🔥</div>
+                    </div>
+                    <span class="habit-result excellent">+7⭐</span>
+                </div>
+
+                <div class="habit-stat">
+                    <div class="habit-icon" style="background: #FEF3C7;">🎒</div>
+                    <div class="habit-info">
+                        <div class="habit-name">整理书包</div>
+                        <div class="habit-progress">6/7天 · 连续打卡12天</div>
+                    </div>
+                    <span class="habit-result good">+6⭐</span>
+                </div>
+
+                <div class="habit-stat">
+                    <div class="habit-icon" style="background: #DCFCE7;">🏃</div>
+                    <div class="habit-info">
+                        <div class="habit-name">跳绳运动</div>
+                        <div class="habit-progress">目标每周3次 · 完成3次</div>
+                    </div>
+                    <span class="habit-result excellent">+3⭐</span>
+                </div>
+            </div>
+
+            <!-- 额外奖励 -->
+            <div class="rank-card">
+                <div class="rank-header">🎁 额外奖励</div>
+
+                <div class="rank-item">
+                    <div class="rank-badge" style="background: #FEF3C7;">🏆</div>
+                    <div class="rank-info">
+                        <div class="rank-name">周全勤奖</div>
+                        <div class="rank-desc">连续7天完成所有任务</div>
+                    </div>
+                    <span class="rank-reward">+3⭐</span>
+                </div>
+
+                <div class="rank-item">
+                    <div class="rank-badge" style="background: #FEF3C7;">🔥</div>
+                    <div class="rank-info">
+                        <div class="rank-name">专注达人</div>
+                        <div class="rank-desc">本周累计21个番茄钟</div>
+                    </div>
+                    <span class="rank-reward">+2⭐</span>
+                </div>
+            </div>
+
+            <!-- 本周奖励 -->
+            <div class="reward-section">
+                <div class="reward-title">🎉 本周获得奖励</div>
+                <div class="reward-content">
+                    <div class="reward-stars">⭐18</div>
+                    <div class="reward-text">
+                        <div class="reward-main">获得 18 颗星星 + 1 个月亮</div>
+                        <div class="reward-sub">表现优秀！继续加油💪</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <nav class="bottom-nav">
+            <a href="parent-dashboard.html" class="nav-item">
+                <span class="nav-item-icon">🏠</span>
+                <span class="nav-item-text">首页</span>
+            </a>
+            <a href="parent-plan-manage.html" class="nav-item">
+                <span class="nav-item-icon">📋</span>
+                <span class="nav-item-text">计划</span>
+            </a>
+            <a href="parent-ranking.html" class="nav-item active">
+                <span class="nav-item-icon">🏆</span>
+                <span class="nav-item-text">评比</span>
+            </a>
+            <a href="settings.html" class="nav-item">
+                <span class="nav-item-icon">👤</span>
+                <span class="nav-item-text">我的</span>
+            </a>
+        </nav>
+    </div>
+</body>
+</html>

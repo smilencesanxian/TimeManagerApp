@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TimeManager - 孩子端</title>
+    <style>
+        /* ===== 设计系统变量 ===== */
+        :root {
+            /* 主品牌色 */
+            --color-primary: #6366F1;
+            --color-primary-hover: #4F46E5;
+            --color-primary-light: #E0E7FF;
+            
+            /* 番茄钟状态色 */
+            --color-pomodoro-safe: #22C55E;
+            --color-pomodoro-warning: #F59E0B;
+            --color-pomodoro-urgent: #EF4444;
+            
+            /* 状态色 */
+            --color-success: #22C55E;
+            --color-warning: #F59E0B;
+            --color-error: #EF4444;
+            
+            /* 中性色 */
+            --color-bg: #F8FAFC;
+            --color-surface: #FFFFFF;
+            --color-border: #E2E8F0;
+            --color-text-primary: #1E293B;
+            --color-text-secondary: #64748B;
+            --color-text-tertiary: #94A3B8;
+            
+            /* 成就系统 */
+            --color-star: #FBBF24;
+            --color-moon: #A78BFA;
+            --color-sun: #F59E0B;
+            
+            /* 学科色 */
+            --color-math: #3B82F6;
+            --color-math-bg: #DBEAFE;
+            --color-chinese: #22C55E;
+            --color-chinese-bg: #DCFCE7;
+            --color-english: #F59E0B;
+            --color-english-bg: #FEF3C7;
+            --color-other: #A855F7;
+            --color-other-bg: #F3E8FF;
+            
+            /* 字体 */
+            --font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+            --font-mono: "SF Mono", "Consolas", "Monaco", monospace;
+            
+            /* 间距 */
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-5: 20px;
+            --space-6: 24px;
+            --space-8: 32px;
+            --space-10: 40px;
+            
+            /* 圆角 */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --radius-full: 9999px;
+            
+            /* 阴影 */
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --shadow-card: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-highlight: 0 4px 12px rgba(99,102,241,0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--color-bg);
+            color: var(--color-text-primary);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* ===== 主容器 - 横屏布局 ===== */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* ===== 顶部状态栏 ===== */
+        .status-bar {
+            height: 64px;
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--space-6);
+            z-index: 100;
+        }
+
+        .achievements {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .achievement-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+
+        .achievement-icon {
+            font-size: 24px;
+            line-height: 1;
+        }
+
+        .achievement-icon.star { color: var(--color-star); }
+        .achievement-icon.moon { color: var(--color-moon); }
+        .achievement-icon.sun { color: var(--color-sun); }
+
+        .achievement-value {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--color-text-primary);
+            min-width: 20px;
+        }
+
+        .focus-status {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: 16px;
+            color: var(--color-text-secondary);
+        }
+
+        .focus-icon {
+            font-size: 20px;
+            color: var(--color-pomodoro-urgent);
+        }
+
+        .focus-count {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+
+        .status-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .icon-btn {
+            width: 48px;
+            height: 48px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-text-secondary);
+            transition: all 0.15s ease;
+        }
+
+        .icon-btn:hover {
+            background: var(--color-bg);
+            color: var(--color-text-primary);
+        }
+
+        .icon-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* ===== 主体内容区 ===== */
+        .main-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ===== 左侧任务列表区 ===== */
+        .task-list-panel {
+            width: 60%;
+            background: var(--color-bg);
+            padding: var(--space-6);
+            overflow-y: auto;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-bottom: var(--space-5);
+        }
+
+        .panel-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .panel-icon {
+            font-size: 24px;
+        }
+
+        /* 任务卡片 */
+        .task-card {
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5) var(--space-6);
+            margin-bottom: var(--space-3);
+            box-shadow: var(--shadow-card);
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .task-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            transform: translateY(-1px);
+        }
+
+        .task-card.active {
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-highlight);
+        }
+
+        .task-card.completed {
+            opacity: 0.7;
+            background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 100%);
+        }
+
+        /* 学科图标 */
+        .subject-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .subject-icon.math { background: var(--color-math-bg); color: var(--color-math); }
+        .subject-icon.chinese { background: var(--color-chinese-bg); color: var(--color-chinese); }
+        .subject-icon.english { background: var(--color-english-bg); color: var(--color-english); }
+        .subject-icon.other { background: var(--color-other-bg); color: var(--color-other); }
+
+        .task-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .task-name {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--color-text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: var(--space-1);
+        }
+
+        .task-subject {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+
+        .task-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .task-duration {
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+            font-size: 14px;
+            color: var(--color-text-secondary);
+        }
+
+        .task-duration-icon {
+            font-size: 14px;
+            color: var(--color-text-tertiary);
+        }
+
+        /* 任务状态 */
+        .task-status {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--color-text-tertiary);
+        }
+
+        .status-dot.pending {
+            border: 2px solid var(--color-text-tertiary);
+            background: transparent;
+        }
+
+        .status-dot.active {
+            background: var(--color-success);
+            animation: breathe 2s ease-in-out infinite;
+        }
+
+        .status-dot.completed {
+            width: 20px;
+            height: 20px;
+            background: var(--color-success);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        @keyframes breathe {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* 打卡区域 */
+        .checkin-section {
+            margin-top: var(--space-6);
+        }
+
+        .checkin-divider {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin: var(--space-4) 0;
+            color: var(--color-text-secondary);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .checkin-divider::before,
+        .checkin-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--color-border);
+        }
+
+        .checkin-item {
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4) var(--space-6);
+            margin-bottom: var(--space-2);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .checkin-item:hover {
+            background: #FAFAFA;
+        }
+
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #CBD5E1;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .checkin-item.checked .checkbox {
+            background: var(--color-success);
+            border-color: var(--color-success);
+            animation: checkBounce 0.3s ease;
+        }
+
+        @keyframes checkBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .checkbox svg {
+            width: 14px;
+            height: 14px;
+            color: white;
+            opacity: 0;
+        }
+
+        .checkin-item.checked .checkbox svg {
+            opacity: 1;
+        }
+
+        .checkin-text {
+            font-size: 16px;
+            color: var(--color-text-primary);
+            transition: all 0.15s ease;
+        }
+
+        .checkin-item.checked .checkin-text {
+            color: var(--color-text-secondary);
+            text-decoration: line-through;
+        }
+
+        /* ===== 右侧详情/计时区 ===== */
+        .task-detail-panel {
+            width: 40%;
+            background: var(--color-surface);
+            box-shadow: -4px 0 12px rgba(0,0,0,0.05);
+            padding: var(--space-8) var(--space-10);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .detail-subject-icon {
+            width: 96px;
+            height: 96px;
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            margin-bottom: var(--space-6);
+        }
+
+        .detail-subject-icon.math { background: var(--color-math-bg); color: var(--color-math); }
+
+        .detail-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--color-text-primary);
+            text-align: center;
+            margin-bottom: var(--space-2);
+        }
+
+        .detail-desc {
+            font-size: 18px;
+            color: var(--color-text-secondary);
+            text-align: center;
+            margin-bottom: var(--space-8);
+        }
+
+        /* 时长信息 */
+        .duration-info {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-10);
+            margin-bottom: var(--space-4);
+            width: 100%;
+        }
+
+        .duration-item {
+            text-align: center;
+        }
+
+        .duration-label {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-1);
+        }
+
+        .duration-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        /* 进度条 */
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: var(--color-border);
+            border-radius: var(--radius-full);
+            margin-bottom: var(--space-8);
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--color-primary);
+            border-radius: var(--radius-full);
+            transition: width 0.3s ease;
+            width: 50%;
+        }
+
+        /* 番茄钟环形进度 */
+        .pomodoro-container {
+            position: relative;
+            margin-bottom: var(--space-8);
+        }
+
+        .pomodoro-status {
+            text-align: center;
+            margin-bottom: var(--space-4);
+        }
+
+        .pomodoro-status-text {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--color-pomodoro-urgent);
+        }
+
+        .pomodoro-ring-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+        }
+
+        .pomodoro-ring {
+            transform: rotate(-90deg);
+        }
+
+        .pomodoro-ring-bg {
+            fill: none;
+            stroke: var(--color-border);
+            stroke-width: 16;
+        }
+
+        .pomodoro-ring-progress {
+            fill: none;
+            stroke-width: 16;
+            stroke-linecap: round;
+            stroke-dasharray: 754; /* 2 * PI * 120 */
+            stroke-dashoffset: 377;
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .pomodoro-ring-progress.safe { stroke: var(--color-pomodoro-safe); }
+        .pomodoro-ring-progress.warning { stroke: var(--color-pomodoro-warning); }
+        .pomodoro-ring-progress.urgent { stroke: var(--color-pomodoro-urgent); }
+
+        .pomodoro-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .pomodoro-time {
+            font-family: var(--font-mono);
+            font-size: 72px;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: var(--space-2);
+        }
+
+        .pomodoro-time.safe { color: var(--color-pomodoro-safe); }
+        .pomodoro-time.warning { color: var(--color-pomodoro-warning); }
+        .pomodoro-time.urgent { color: var(--color-pomodoro-urgent); }
+
+        .pomodoro-label {
+            font-size: 16px;
+            color: var(--color-text-secondary);
+        }
+
+        /* 控制按钮 */
+        .control-buttons {
+            display: flex;
+            gap: var(--space-6);
+        }
+
+        .btn {
+            height: 56px;
+            padding: 0 var(--space-6);
+            border-radius: var(--radius-lg);
+            font-size: 18px;
+            font-weight: 600;
+            font-family: var(--font-family);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            transition: all 0.15s ease;
+            border: none;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            width: 160px;
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .btn-secondary {
+            width: 160px;
+            background: white;
+            color: var(--color-warning);
+            border: 2px solid var(--color-warning);
+        }
+
+        .btn-secondary:hover {
+            background: #FFFBEB;
+        }
+
+        .btn-success {
+            width: 160px;
+            background: var(--color-success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #16A34A;
+        }
+
+        .btn-icon {
+            font-size: 20px;
+        }
+
+        /* ===== 心语墙 ===== */
+        .heartwall {
+            height: 64px;
+            background: #F0FDF4;
+            border-top: 1px solid #BBF7D0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 var(--space-6);
+            gap: var(--space-4);
+        }
+
+        .heartwall-content {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: 16px;
+            color: #166534;
+        }
+
+        .heartwall-icon {
+            font-size: 16px;
+        }
+
+        .heartwall-nav {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: transparent;
+            color: var(--color-success);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .heartwall-nav svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* ===== 滚动条样式 ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+
+        /* ===== 脉冲动画（最后60秒） ===== */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .pomodoro-ring-container.pulse {
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        /* ===== 底部导航 ===== */
+        .bottom-nav {
+            height: 64px;
+            background: var(--color-surface);
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 24px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px 20px;
+            border-radius: 12px;
+            transition: all 0.15s;
+            text-decoration: none;
+            color: var(--color-text-secondary);
+        }
+
+        .nav-item:hover { background: var(--color-bg); }
+        .nav-item.active { color: var(--color-primary); }
+
+        .nav-item-icon { font-size: 22px; }
+        .nav-item-text { font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 顶部状态栏 -->
+        <header class="status-bar">
+            <div class="achievements">
+                <div class="achievement-item">
+                    <span class="achievement-icon star">⭐</span>
+                    <span class="achievement-value">3</span>
+                </div>
+                <div class="achievement-item">
+                    <span class="achievement-icon moon">🌙</span>
+                    <span class="achievement-value">1</span>
+                </div>
+                <div class="achievement-item">
+                    <span class="achievement-icon sun">☀️</span>
+                    <span class="achievement-value">0</span>
+                </div>
+            </div>
+            <div class="focus-status">
+                <span class="focus-icon">🍅</span>
+                <span>专注</span>
+                <span class="focus-count">2/4</span>
+            </div>
+            <div class="status-actions">
+                <button class="icon-btn" title="设置" onclick="location.href='settings.html'">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" title="切换用户" onclick="switchToParent()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- 主体内容 -->
+        <main class="main-content">
+            <!-- 左侧任务列表 -->
+            <section class="task-list-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">今日任务</h2>
+                    <span class="panel-icon">📋</span>
+                </div>
+
+                <!-- 进行中任务 -->
+                <div class="task-card active">
+                    <div class="subject-icon math">📐</div>
+                    <div class="task-info">
+                        <div class="task-name">数学作业 - 练习册P25-28</div>
+                        <div class="task-subject">数学</div>
+                    </div>
+                    <div class="task-meta">
+                        <div class="task-duration">
+                            <span class="task-duration-icon">⏱️</span>
+                            <span>25分钟</span>
+                        </div>
+                        <div class="task-status">
+                            <div class="status-dot active"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 待开始任务 -->
+                <div class="task-card">
+                    <div class="subject-icon chinese">📘</div>
+                    <div class="task-info">
+                        <div class="task-name">语文背诵 - 古诗二首</div>
+                        <div class="task-subject">语文</div>
+                    </div>
+                    <div class="task-meta">
+                        <div class="task-duration">
+                            <span class="task-duration-icon">⏱️</span>
+                            <span>15分钟</span>
+                        </div>
+                        <div class="task-status">
+                            <div class="status-dot pending"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 待开始任务 -->
+                <div class="task-card">
+                    <div class="subject-icon english">🔤</div>
+                    <div class="task-info">
+                        <div class="task-name">英语单词 - Unit 3单词表</div>
+                        <div class="task-subject">英语</div>
+                    </div>
+                    <div class="task-meta">
+                        <div class="task-duration">
+                            <span class="task-duration-icon">⏱️</span>
+                            <span>20分钟</span>
+                        </div>
+                        <div class="task-status">
+                            <div class="status-dot pending"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 已完成任务 -->
+                <div class="task-card completed">
+                    <div class="subject-icon other">🎨</div>
+                    <div class="task-info">
+                        <div class="task-name">美术创作 - 春天的花朵</div>
+                        <div class="task-subject">其他</div>
+                    </div>
+                    <div class="task-meta">
+                        <div class="task-duration">
+                            <span class="task-duration-icon">⏱️</span>
+                            <span>30分钟</span>
+                        </div>
+                        <div class="task-status">
+                            <div class="status-dot completed">✓</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 打卡区域 -->
+                <div class="checkin-section">
+                    <div class="checkin-divider">打卡</div>
+                    
+                    <div class="checkin-item checked">
+                        <div class="checkbox">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                        </div>
+                        <span class="checkin-text">早睡早起</span>
+                    </div>
+
+                    <div class="checkin-item">
+                        <div class="checkbox">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                        </div>
+                        <span class="checkin-text">整理书包</span>
+                    </div>
+
+                    <div class="checkin-item">
+                        <div class="checkbox">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                        </div>
+                        <span class="checkin-text">跳绳100个</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 右侧详情/计时区 -->
+            <section class="task-detail-panel">
+                <div class="detail-subject-icon math">📐</div>
+                <h3 class="detail-title">数学作业</h3>
+                <p class="detail-desc">练习册P25-28</p>
+
+                <div class="duration-info">
+                    <div class="duration-item">
+                        <div class="duration-label">预计</div>
+                        <div class="duration-value">25分钟</div>
+                    </div>
+                    <div class="duration-item">
+                        <div class="duration-label">已进行</div>
+                        <div class="duration-value">12:30</div>
+                    </div>
+                </div>
+
+                <div class="progress-bar-container">
+                    <div class="progress-bar"></div>
+                </div>
+
+                <div class="pomodoro-container">
+                    <div class="pomodoro-status">
+                        <span class="pomodoro-status-text">
+                            <span>🔥</span>
+                            <span>专注中 2/4</span>
+                        </span>
+                    </div>
+
+                    <div class="pomodoro-ring-container">
+                        <svg class="pomodoro-ring" width="280" height="280" viewBox="0 0 280 280">
+                            <circle class="pomodoro-ring-bg" cx="140" cy="140" r="120"/>
+                            <circle class="pomodoro-ring-progress safe" cx="140" cy="140" r="120"/>
+                        </svg>
+                        <div class="pomodoro-content">
+                            <div class="pomodoro-time safe">15:30</div>
+                            <div class="pomodoro-label">剩余时间</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-buttons">
+                    <button class="btn btn-secondary">
+                        <span class="btn-icon">⏸️</span>
+                        <span>暂停</span>
+                    </button>
+                    <button class="btn btn-success">
+                        <span class="btn-icon">✅</span>
+                        <span>完成</span>
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- 心语墙 -->
+        <footer class="heartwall">
+            <button class="heartwall-nav">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+            </button>
+            <div class="heartwall-content">
+                <span class="heartwall-icon">💬</span>
+                <span>"今天专注力很棒，继续加油！" - 妈妈  19:30</span>
+            </div>
+            <button class="heartwall-nav">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </button>
+        </footer>
+
+        <!-- 底部导航 -->
+        <nav class="bottom-nav">
+            <a href="child-today-tasks.html" class="nav-item active">
+                <span class="nav-item-icon">📋</span>
+                <span class="nav-item-text">今日任务</span>
+            </a>
+            <a href="child-achievements.html" class="nav-item">
+                <span class="nav-item-icon">🏆</span>
+                <span class="nav-item-text">我的成就</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        // 打卡项交互
+        document.querySelectorAll('.checkin-item').forEach(item => {
+            item.addEventListener('click', () => {
+                item.classList.toggle('checked');
+            });
+        });
+
+        // 任务卡片点击交互
+        document.querySelectorAll('.task-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.task-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+            });
+        });
+
+        // 切换到家长端
+        function switchToParent() {
+            if (confirm('需要家长验证才能切换到家长模式。是否继续？')) {
+                window.location.href = 'parent-dashboard.html';
+            }
+        }
+    </script>
+</body>
+</html>

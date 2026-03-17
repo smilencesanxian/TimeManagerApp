@@ -1,0 +1,57 @@
+// 全局样式 - 遵循 DESIGN-TOKENS.json 规范
+page {
+  background-color: #F8FAFC;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  color: #1E293B;
+  -webkit-tap-highlight-color: transparent;
+}
+
+// CSS 变量（设计 Token）— 与 DESIGN-TOKENS.json 保持一致
+:root {
+  /* 品牌色 */
+  --color-primary: #6366F1;
+  --color-primary-hover: #4F46E5;
+  --color-primary-light: #E0E7FF;
+
+  /* 语义色 */
+  --color-success: #22C55E;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+
+  /* 番茄钟状态色 */
+  --color-pomodoro-safe: #22C55E;
+  --color-pomodoro-warning: #F59E0B;
+  --color-pomodoro-urgent: #EF4444;
+
+  /* 中性色 */
+  --color-bg: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-border: #E2E8F0;
+
+  /* 文字色 */
+  --color-text-primary: #1E293B;
+  --color-text-secondary: #64748B;
+  --color-text-tertiary: #94A3B8;
+
+  /* 成就系统 */
+  --color-star: #FBBF24;
+  --color-moon: #A78BFA;
+  --color-sun: #F59E0B;
+
+  /* 学科色 */
+  --color-math-bg: #DBEAFE;
+  --color-math-fg: #3B82F6;
+  --color-chinese-bg: #DCFCE7;
+  --color-chinese-fg: #22C55E;
+  --color-english-bg: #FEF3C7;
+  --color-english-fg: #F59E0B;
+  --color-other-bg: #F3E8FF;
+  --color-other-fg: #A855F7;
+
+  /* 阴影（物理像素，不需要 2x 缩放） */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+  --shadow-card: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-highlight: 0 4px 12px rgba(99,102,241,0.15);
+}

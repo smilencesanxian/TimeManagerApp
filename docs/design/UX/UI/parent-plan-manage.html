@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TimeManager - 家长端 - 计划管理</title>
+    <style>
+        :root {
+            --color-primary: #6366F1;
+            --color-success: #22C55E;
+            --color-warning: #F59E0B;
+            --color-bg: #F8FAFC;
+            --color-surface: #FFFFFF;
+            --color-border: #E2E8F0;
+            --color-text-primary: #1E293B;
+            --color-text-secondary: #64748B;
+            --font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-family); background: var(--color-bg); min-height: 100vh; }
+
+        .app-container { max-width: 414px; margin: 0 auto; min-height: 100vh; background: var(--color-bg); display: flex; flex-direction: column; }
+
+        /* 头部 */
+        .header {
+            height: 56px;
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .header-title { font-size: 18px; font-weight: 600; flex: 1; }
+
+        /*  Tab导航 */
+        .tab-nav {
+            display: flex;
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            padding: 0 16px;
+        }
+
+        .tab-item {
+            flex: 1;
+            padding: 14px;
+            text-align: center;
+            font-size: 15px;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .tab-item.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+            font-weight: 600;
+        }
+
+        /* 内容区 */
+        .content { flex: 1; padding: 16px; overflow-y: auto; }
+
+        /* 日历总览 */
+        .calendar-overview {
+            background: var(--color-surface);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .calendar-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        .calendar-nav-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--color-bg);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            text-align: center;
+        }
+
+        .calendar-day-label {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            padding: 8px 0;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            position: relative;
+        }
+
+        .calendar-day:hover { background: var(--color-bg); }
+        .calendar-day.today { background: var(--color-primary); color: white; }
+        .calendar-day.selected { box-shadow: 0 0 0 2px var(--color-primary); }
+        .calendar-day.has-plan::after {
+            content: '';
+            width: 4px;
+            height: 4px;
+            background: var(--color-success);
+            border-radius: 50%;
+            position: absolute;
+            bottom: 4px;
+        }
+
+        /* 场景模板 */
+        .template-section {
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .template-card {
+            background: var(--color-surface);
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .template-card:hover, .template-card.selected {
+            border-color: var(--color-primary);
+            box-shadow: 0 4px 12px rgba(99,102,241,0.15);
+        }
+
+        .template-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .template-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .template-desc {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+
+        /* 任务列表 */
+        .task-list-section {
+            background: var(--color-surface);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .task-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .task-count {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+        }
+
+        .add-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--color-primary);
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--color-bg);
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+
+        .task-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: #DBEAFE;
+        }
+
+        .task-info { flex: 1; }
+        .task-name { font-size: 15px; font-weight: 500; }
+        .task-meta { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .task-action-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        /* 习惯列表 */
+        .habit-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--color-bg);
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+
+        .habit-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--color-border);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .habit-checkbox.checked {
+            background: var(--color-success);
+            border-color: var(--color-success);
+        }
+
+        /* 底部操作栏 */
+        .bottom-bar {
+            background: var(--color-surface);
+            border-top: 1px solid var(--color-border);
+            padding: 16px 24px calc(16px + env(safe-area-inset-bottom));
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            height: 48px;
+            border-radius: 12px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-secondary { background: var(--color-bg); color: var(--color-text-primary); }
+        .btn-primary { background: var(--color-primary); color: white; }
+
+        /* 底部导航 */
+        .bottom-nav {
+            height: 64px;
+            background: var(--color-surface);
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px 16px;
+            text-decoration: none;
+            color: var(--color-text-secondary);
+        }
+
+        .nav-item.active { color: var(--color-primary); }
+        .nav-item-icon { font-size: 24px; }
+        .nav-item-text { font-size: 10px; }
+
+        /* 弹窗 */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: var(--color-surface);
+            width: 100%;
+            max-width: 414px;
+            border-radius: 20px 20px 0 0;
+            padding: 24px;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; }
+
+        .form-group { margin-bottom: 16px; }
+        .form-label { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 8px; display: block; }
+
+        .form-input {
+            width: 100%;
+            height: 48px;
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 0 16px;
+            font-size: 16px;
+        }
+
+        /* 目标展示区 */
+        .goal-section {
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            margin: 16px;
+            border-radius: 16px;
+            padding: 20px;
+            color: white;
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .goal-label { font-size: 14px; opacity: 0.9; }
+        .goal-title { font-size: 18px; font-weight: 600; }
+
+        .goal-progress {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .goal-progress-bar {
+            flex: 1;
+            height: 8px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .goal-progress-fill {
+            height: 100%;
+            background: white;
+            border-radius: 4px;
+        }
+
+        .goal-progress-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .goal-empty {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .goal-empty-text {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 16px;
+        }
+
+        .goal-set-btn {
+            padding: 10px 24px;
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.4);
+            color: white;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .goal-set-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* 模板应用弹窗 */
+        .date-range-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .date-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .template-preview {
+            background: var(--color-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .preview-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--color-text-primary);
+        }
+
+        .preview-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            border-bottom: 1px dashed var(--color-border);
+        }
+
+        .preview-item:last-child {
+            border-bottom: none;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            height: 48px;
+            border-radius: 12px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .modal-btn-secondary {
+            background: var(--color-bg);
+            color: var(--color-text-primary);
+        }
+
+        .modal-btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .conflict-notice {
+            background: #FEF3C7;
+            border: 1px solid #FCD34D;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 16px 0;
+            font-size: 13px;
+            color: #92400E;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .radio-item input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--color-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <button class="back-btn" onclick="history.back()">←</button>
+            <h1 class="header-title">计划管理</h1>
+        </header>
+
+        <!-- 当前目标展示区 -->
+        <div class="goal-section" id="goalSection">
+            <div class="goal-header">
+                <span class="goal-label">🎯 当前目标</span>
+            </div>
+            <div id="hasGoal" style="display: block;">
+                <div class="goal-title">PET考试优秀</div>
+                <div class="goal-progress">
+                    <div class="goal-progress-bar">
+                        <div class="goal-progress-fill" style="width: 40%;"></div>
+                    </div>
+                    <span class="goal-progress-text">40%</span>
+                </div>
+                <div style="font-size: 12px; margin-top: 8px; opacity: 0.8;">截止: 2026年6月30日 · 还剩107天</div>
+            </div>
+            <div id="noGoal" class="goal-empty" style="display: none;">
+                <div class="goal-empty-text">还没有设置目标<br>设定一个目标，让孩子更有动力</div>
+                <button class="goal-set-btn" onclick="showSetGoalModal()">+ 设定目标</button>
+            </div>
+        </div>
+
+        <!-- Tab导航 -->
+        <div class="tab-nav">
+            <div class="tab-item active" onclick="switchTab('daily')">今日计划</div>
+            <div class="tab-item" onclick="switchTab('calendar')">日历总览</div>
+            <div class="tab-item" onclick="switchTab('template')">场景模板</div>
+        </div>
+
+        <div class="content">
+            <!-- 今日计划Tab -->
+            <div id="dailyTab">
+                <!-- 任务列表 -->
+                <div class="task-list-section">
+                    <div class="task-list-header">
+                        <span class="section-title">📚 今日任务 (4)</span>
+                        <button class="add-btn" onclick="showAddTask()">+</button>
+                    </div>
+
+                    <div class="task-item">
+                        <div class="task-icon">📐</div>
+                        <div class="task-info">
+                            <div class="task-name">数学作业 - 练习册P25-28</div>
+                            <div class="task-meta">⏱️ 25分钟 · 🔥 专注中</div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="task-action-btn">✏️</button>
+                            <button class="task-action-btn">🗑️</button>
+                        </div>
+                    </div>
+
+                    <div class="task-item">
+                        <div class="task-icon" style="background: #DCFCE7;">📘</div>
+                        <div class="task-info">
+                            <div class="task-name">语文背诵 - 古诗二首</div>
+                            <div class="task-meta">⏱️ 15分钟 · ⏸️ 待开始</div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="task-action-btn">✏️</button>
+                            <button class="task-action-btn">🗑️</button>
+                        </div>
+                    </div>
+
+                    <div class="task-item">
+                        <div class="task-icon" style="background: #FEF3C7;">🔤</div>
+                        <div class="task-info">
+                            <div class="task-name">英语单词 - Unit 3</div>
+                            <div class="task-meta">⏱️ 20分钟 · ⏸️ 待开始</div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="task-action-btn">✏️</button>
+                            <button class="task-action-btn">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 习惯打卡 -->
+                <div class="task-list-section">
+                    <div class="task-list-header">
+                        <span class="section-title">☑️ 今日习惯 (3)</span>
+                        <button class="add-btn" onclick="showAddHabit()">+</button>
+                    </div>
+
+                    <div class="habit-item">
+                        <div class="habit-checkbox checked"></div>
+                        <div class="task-info">
+                            <div class="task-name">🌙 早睡早起</div>
+                            <div class="task-meta">连续打卡7天 🔥</div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="task-action-btn">✏️</button>
+                        </div>
+                    </div>
+
+                    <div class="habit-item">
+                        <div class="habit-checkbox"></div>
+                        <div class="task-info">
+                            <div class="task-name">🎒 整理书包</div>
+                            <div class="task-meta">连续打卡12天</div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="task-action-btn">✏️</button>
+                        </div>
+                    </div>
+
+                    <div class="habit-item">
+                        <div class="habit-checkbox"></div>
+                        <div class="task-info">
+                            <div class="task-name">🏃 跳绳100个</div>
+                            <div class="task-meta">每周3次 · 本周1/3</div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="task-action-btn">✏️</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 日历总览Tab -->
+            <div id="calendarTab" style="display: none;">
+                <div class="calendar-overview">
+                    <div class="calendar-header">
+                        <span class="calendar-title">2026年3月</span>
+                        <div class="calendar-nav">
+                            <button class="calendar-nav-btn">◀</button>
+                            <button class="calendar-nav-btn">▶</button>
+                        </div>
+                    </div>
+                    <div class="calendar-grid">
+                        <div class="calendar-day-label">日</div>
+                        <div class="calendar-day-label">一</div>
+                        <div class="calendar-day-label">二</div>
+                        <div class="calendar-day-label">三</div>
+                        <div class="calendar-day-label">四</div>
+                        <div class="calendar-day-label">五</div>
+                        <div class="calendar-day-label">六</div>
+                        <div class="calendar-day">1</div>
+                        <div class="calendar-day">2</div>
+                        <div class="calendar-day has-plan">3</div>
+                        <div class="calendar-day">4</div>
+                        <div class="calendar-day has-plan">5</div>
+                        <div class="calendar-day has-plan">6</div>
+                        <div class="calendar-day">7</div>
+                        <div class="calendar-day">8</div>
+                        <div class="calendar-day has-plan">9</div>
+                        <div class="calendar-day">10</div>
+                        <div class="calendar-day has-plan">11</div>
+                        <div class="calendar-day">12</div>
+                        <div class="calendar-day">13</div>
+                        <div class="calendar-day selected has-plan">14</div>
+                        <div class="calendar-day today has-plan">15</div>
+                        <div class="calendar-day">16</div>
+                        <div class="calendar-day has-plan">17</div>
+                        <div class="calendar-day">18</div>
+                        <div class="calendar-day has-plan">19</div>
+                        <div class="calendar-day has-plan">20</div>
+                    </div>
+                </div>
+
+                <div class="task-list-section">
+                    <div class="task-list-header">
+                        <span class="section-title">3月15日 计划</span>
+                    </div>
+                    <div class="task-item">
+                        <div class="task-icon">📐</div>
+                        <div class="task-info">
+                            <div class="task-name">数学作业</div>
+                            <div class="task-meta">25分钟</div>
+                        </div>
+                    </div>
+                    <div class="task-item">
+                        <div class="task-icon" style="background: #DCFCE7;">📘</div>
+                        <div class="task-info">
+                            <div class="task-name">语文背诵</div>
+                            <div class="task-meta">15分钟</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 场景模板Tab -->
+            <div id="templateTab" style="display: none;">
+                <div class="template-section">
+                    <div class="section-title">🎯 快速创建计划</div>
+                    <div class="template-grid">
+                        <div class="template-card" onclick="showTemplateModal('daily', '📚 日常学习')">
+                            <div class="template-icon">📚</div>
+                            <div class="template-name">日常学习</div>
+                            <div class="template-desc">语数英基础练习</div>
+                        </div>
+
+                        <div class="template-card" onclick="showTemplateModal('exam', '📝 考试复习')">
+                            <div class="template-icon">📝</div>
+                            <div class="template-name">考试复习</div>
+                            <div class="template-desc">重点突破+模拟</div>
+                        </div>
+
+                        <div class="template-card" onclick="showTemplateModal('vacation', '🏖️ 寒暑假')">
+                            <div class="template-icon">🏖️</div>
+                            <div class="template-name">寒暑假</div>
+                            <div class="template-desc">自主规划+阅读</div>
+                        </div>
+
+                        <div class="template-card" onclick="showTemplateModal('weekend', '🎯 周末复习')">
+                            <div class="template-icon">🎯</div>
+                            <div class="template-name">周末复习</div>
+                            <div class="template-desc">周总结+预习</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="template-section">
+                    <div class="section-title">📋 模板详情 - 日常学习</div>
+                    <div class="task-list-section">
+                        <div class="task-item">
+                            <div class="task-icon">📐</div>
+                            <div class="task-info">
+                                <div class="task-name">数学练习册 2页</div>
+                                <div class="task-meta">⏱️ 25分钟</div>
+                            </div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-icon" style="background: #DCFCE7;">📘</div>
+                            <div class="task-info">
+                                <div class="task-name">语文背诵/朗读</div>
+                                <div class="task-meta">⏱️ 15分钟</div>
+                            </div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-icon" style="background: #FEF3C7;">🔤</div>
+                            <div class="task-info">
+                                <div class="task-name">英语单词/听力</div>
+                                <div class="task-meta">⏱️ 20分钟</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <nav class="bottom-nav">
+            <a href="parent-dashboard.html" class="nav-item">
+                <span class="nav-item-icon">🏠</span>
+                <span class="nav-item-text">首页</span>
+            </a>
+            <a href="parent-plan-manage.html" class="nav-item active">
+                <span class="nav-item-icon">📋</span>
+                <span class="nav-item-text">计划</span>
+            </a>
+            <a href="parent-ranking.html" class="nav-item">
+                <span class="nav-item-icon">🏆</span>
+                <span class="nav-item-text">评比</span>
+            </a>
+            <a href="settings.html" class="nav-item">
+                <span class="nav-item-icon">👤</span>
+                <span class="nav-item-text">我的</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        let currentTemplate = null;
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('dailyTab').style.display = 'none';
+            document.getElementById('calendarTab').style.display = 'none';
+            document.getElementById('templateTab').style.display = 'none';
+            
+            document.getElementById(tab + 'Tab').style.display = 'block';
+        }
+
+        // 显示模板应用弹窗
+        function showTemplateModal(type, name) {
+            currentTemplate = type;
+            document.getElementById('templateApplyModal').classList.add('active');
+            document.getElementById('modalTemplateName').textContent = name;
+            
+            // 设置默认日期范围
+            const today = new Date().toISOString().split('T')[0];
+            const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+            document.getElementById('startDate').value = today;
+            document.getElementById('endDate').value = nextWeek;
+        }
+
+        // 关闭模板弹窗
+        function closeTemplateModal() {
+            document.getElementById('templateApplyModal').classList.remove('active');
+        }
+
+        // 确认应用模板
+        function confirmApplyTemplate() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const conflictOption = document.querySelector('input[name="conflictOption"]:checked').value;
+            
+            if (!startDate || !endDate) {
+                alert('请选择开始和结束日期');
+                return;
+            }
+            
+            if (new Date(startDate) > new Date(endDate)) {
+                alert('开始日期不能晚于结束日期');
+                return;
+            }
+            
+            alert(`已应用模板到 ${startDate} 至 ${endDate}\n重复处理：${conflictOption === 'skip' ? '跳过重复项' : '覆盖重复项'}`);
+            closeTemplateModal();
+        }
+
+        // 显示设定目标弹窗
+        function showSetGoalModal() {
+            document.getElementById('setGoalModal').classList.add('active');
+        }
+
+        // 关闭设定目标弹窗
+        function closeSetGoalModal() {
+            document.getElementById('setGoalModal').classList.remove('active');
+        }
+
+        // 保存目标
+        function saveGoal() {
+            const goalName = document.getElementById('goalNameInput').value;
+            const goalDeadline = document.getElementById('goalDeadlineInput').value;
+            
+            if (!goalName || !goalDeadline) {
+                alert('请填写目标名称和截止日期');
+                return;
+            }
+            
+            // 切换显示
+            document.getElementById('noGoal').style.display = 'none';
+            document.getElementById('hasGoal').style.display = 'block';
+            document.querySelector('#hasGoal .goal-title').textContent = goalName;
+            document.querySelector('#hasGoal div:last-child').textContent = `截止: ${goalDeadline}`;
+            
+            closeSetGoalModal();
+            alert('目标设定成功！');
+        }
+
+        function showAddTask() {
+            alert('添加任务弹窗');
+        }
+
+        function showAddHabit() {
+            alert('添加习惯弹窗');
+        }
+    </script>
+
+    <!-- 模板应用弹窗 -->
+    <div class="modal-overlay" id="templateApplyModal">
+        <div class="modal">
+            <h3 class="modal-title" id="modalTemplateName">应用模板</h3>
+            
+            <div class="form-group">
+                <label class="form-label">选择时间范围</label>
+                <div class="date-range-selector">
+                    <input type="date" class="date-input" id="startDate">
+                    <span>至</span>
+                    <input type="date" class="date-input" id="endDate">
+                </div>
+            </div>
+            
+            <div class="template-preview">
+                <div class="preview-title">📋 计划预览（含以下任务和习惯）</div>
+                <div class="preview-item">📐 数学练习册 2页（25分钟）</div>
+                <div class="preview-item">📘 语文背诵/朗读（15分钟）</div>
+                <div class="preview-item">🔤 英语单词/听力（20分钟）</div>
+                <div class="preview-item">🌙 早睡早起（每日打卡）</div>
+                <div class="preview-item">🎒 整理书包（每日打卡）</div>
+            </div>
+            
+            <div class="conflict-notice">
+                ⚠️ 提示：如果所选日期已有计划，将按以下方式处理重复项
+            </div>
+            
+            <div class="radio-group">
+                <label class="radio-item">
+                    <input type="radio" name="conflictOption" value="skip" checked>
+                    <span>跳过重复项</span>
+                </label>
+                <label class="radio-item">
+                    <input type="radio" name="conflictOption" value="replace">
+                    <span>覆盖重复项</span>
+                </label>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-secondary" onclick="closeTemplateModal()">取消</button>
+                <button class="modal-btn modal-btn-primary" onclick="confirmApplyTemplate()">确认应用</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设定目标弹窗 -->
+    <div class="modal-overlay" id="setGoalModal">
+        <div class="modal">
+            <h3 class="modal-title">🎯 设定目标</h3>
+            
+            <div class="form-group">
+                <label class="form-label">目标名称</label>
+                <input type="text" class="form-input" id="goalNameInput" placeholder="例如：PET考试优秀">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">截止日期</label>
+                <input type="date" class="form-input" id="goalDeadlineInput">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">目标类型</label>
+                <div class="radio-group">
+                    <label class="radio-item">
+                        <input type="radio" name="goalType" value="short" checked>
+                        <span>短期（周/月）</span>
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" name="goalType" value="long">
+                        <span>长期（学期/年）</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-secondary" onclick="closeSetGoalModal()">取消</button>
+                <button class="modal-btn modal-btn-primary" onclick="saveGoal()">保存目标</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

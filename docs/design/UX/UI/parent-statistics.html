@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TimeManager - 家长端 - 数据统计</title>
+    <style>
+        :root {
+            --color-primary: #6366F1;
+            --color-success: #22C55E;
+            --color-warning: #F59E0B;
+            --color-bg: #F8FAFC;
+            --color-surface: #FFFFFF;
+            --color-border: #E2E8F0;
+            --color-text-primary: #1E293B;
+            --color-text-secondary: #64748B;
+            --font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-family); background: var(--color-bg); min-height: 100vh; }
+
+        .app-container { max-width: 414px; margin: 0 auto; min-height: 100vh; background: var(--color-bg); display: flex; flex-direction: column; }
+
+        /* 头部 */
+        .header {
+            height: 56px;
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .header-title { font-size: 18px; font-weight: 600; flex: 1; }
+
+        /* 内容区 */
+        .content { flex: 1; padding: 16px; overflow-y: auto; }
+
+        /* 时间范围选择 */
+        .time-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .time-option {
+            padding: 8px 16px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 20px;
+            font-size: 14px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .time-option:hover, .time-option.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        /* 数据概览卡片 */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--color-surface);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-value.primary { color: var(--color-primary); }
+        .stat-value.success { color: var(--color-success); }
+        .stat-value.warning { color: var(--color-warning); }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+
+        .stat-trend {
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .stat-trend.up { color: var(--color-success); }
+        .stat-trend.down { color: var(--color-error); }
+
+        /* 图表卡片 */
+        .chart-card {
+            background: var(--color-surface);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .chart-title { font-size: 16px; font-weight: 600; }
+        .chart-subtitle { font-size: 13px; color: var(--color-text-secondary); }
+
+        /* 折线图 */
+        .line-chart {
+            height: 150px;
+            position: relative;
+        }
+
+        .chart-svg { width: 100%; height: 100%; }
+
+        /* 饼图 */
+        .pie-chart-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .pie-chart {
+            width: 120px;
+            height: 120px;
+        }
+
+        .pie-legend {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        .legend-text { flex: 1; color: var(--color-text-secondary); }
+        .legend-value { font-weight: 600; }
+
+        /* 热力图 */
+        .heatmap {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .heatmap-cell {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .heatmap-label {
+            font-size: 11px;
+            color: var(--color-text-secondary);
+            text-align: center;
+        }
+
+        /* 效率分析 */
+        .efficiency-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .efficiency-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--color-bg);
+            border-radius: 10px;
+        }
+
+        .efficiency-rank {
+            width: 28px;
+            height: 28px;
+            background: var(--color-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .efficiency-rank.bronze { background: #CD7F32; }
+        .efficiency-rank.silver { background: #C0C0C0; }
+
+        .efficiency-info { flex: 1; }
+        .efficiency-name { font-size: 14px; font-weight: 500; }
+        .efficiency-desc { font-size: 12px; color: var(--color-text-secondary); }
+        .efficiency-value { font-size: 16px; font-weight: 600; color: var(--color-success); }
+
+        /* 闪光点 */
+        .highlight-card {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .highlight-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #92400E;
+            margin-bottom: 12px;
+        }
+
+        .highlight-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .highlight-item:last-child { border-bottom: none; }
+
+        .highlight-icon { font-size: 18px; }
+        .highlight-text { font-size: 14px; color: #78350F; line-height: 1.5; }
+
+        /* 底部按钮 */
+        .share-btn {
+            width: 100%;
+            height: 52px;
+            background: var(--color-surface);
+            border: 2px solid var(--color-primary);
+            color: var(--color-primary);
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            height: 64px;
+            background: var(--color-surface);
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px 16px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .nav-item-icon { font-size: 24px; color: var(--color-text-tertiary); }
+        .nav-item-text { font-size: 10px; color: var(--color-text-tertiary); }
+        .nav-item.active .nav-item-icon, .nav-item.active .nav-item-text { color: var(--color-primary); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <button class="back-btn" onclick="history.back()">←</button>
+            <h1 class="header-title">数据统计</h1>
+        </header>
+
+        <div class="content">
+            <!-- 时间范围选择 -->
+            <div class="time-selector">
+                <button class="time-option">今日</button>
+                <button class="time-option active">本周</button>
+                <button class="time-option">本月</button>
+                <button class="time-option">本学期</button>
+            </div>
+
+            <!-- 数据概览 -->
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <div class="stat-value primary">21</div>
+                    <div class="stat-label">总番茄数</div>
+                    <div class="stat-trend up">↑ 较上周+3</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value success">8.5h</div>
+                    <div class="stat-label">专注时长</div>
+                    <div class="stat-trend up">↑ 较上周+1.2h</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value warning">75%</div>
+                    <div class="stat-label">任务完成率</div>
+                    <div class="stat-trend up">↑ 较上周+5%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value primary">5.2</div>
+                    <div class="stat-label">日均番茄</div>
+                    <div class="stat-trend up">↑ 较上周+0.3</div>
+                </div>
+            </div>
+
+            <!-- 闪光点 -->
+            <div class="highlight-card">
+                <div class="highlight-title">
+                    <span>✨</span>
+                    <span>本周闪光点</span>
+                </div>
+                <div class="highlight-item">
+                    <span class="highlight-icon">🏆</span>
+                    <span class="highlight-text">周一效率最高，完成了4个番茄钟</span>
+                </div>
+                <div class="highlight-item">
+                    <span class="highlight-icon">📈</span>
+                    <span class="highlight-text">数学科目效率提升20%，进步明显</span>
+                </div>
+                <div class="highlight-item">
+                    <span class="highlight-icon">🔥</span>
+                    <span class="highlight-text">连续7天完成早睡早起打卡</span>
+                </div>
+            </div>
+
+            <!-- 专注时长趋势 -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <span class="chart-title">📈 专注时长趋势</span>
+                    <span class="chart-subtitle">日均 75分钟</span>
+                </div>
+                <div class="line-chart">
+                    <svg class="chart-svg" viewBox="0 0 350 150">
+                        <!-- 网格线 -->
+                        <line x1="0" y1="30" x2="350" y2="30" stroke="#E2E8F0" stroke-dasharray="4"/>
+                        <line x1="0" y1="75" x2="350" y2="75" stroke="#E2E8F0" stroke-dasharray="4"/>
+                        <line x1="0" y1="120" x2="350" y2="120" stroke="#E2E8F0" stroke-dasharray="4"/>
+                        
+                        <!-- 折线 -->
+                        <polyline fill="none" stroke="#6366F1" stroke-width="3" points="25,90 75,60 125,45 175,75 225,30 275,50 325,40"/>
+                        
+                        <!-- 数据点 -->
+                        <circle cx="25" cy="90" r="5" fill="#6366F1"/>
+                        <circle cx="75" cy="60" r="5" fill="#6366F1"/>
+                        <circle cx="125" cy="45" r="5" fill="#6366F1"/>
+                        <circle cx="175" cy="75" r="5" fill="#6366F1"/>
+                        <circle cx="225" cy="30" r="5" fill="#6366F1"/>
+                        <circle cx="275" cy="50" r="5" fill="#6366F1"/>
+                        <circle cx="325" cy="40" r="5" fill="#6366F1"/>
+                        
+                        <!-- X轴标签 -->
+                        <text x="25" y="145" text-anchor="middle" font-size="11" fill="#64748B">一</text>
+                        <text x="75" y="145" text-anchor="middle" font-size="11" fill="#64748B">二</text>
+                        <text x="125" y="145" text-anchor="middle" font-size="11" fill="#64748B">三</text>
+                        <text x="175" y="145" text-anchor="middle" font-size="11" fill="#64748B">四</text>
+                        <text x="225" y="145" text-anchor="middle" font-size="11" fill="#64748B">五</text>
+                        <text x="275" y="145" text-anchor="middle" font-size="11" fill="#64748B">六</text>
+                        <text x="325" y="145" text-anchor="middle" font-size="11" fill="#64748B">日</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 科目时间分布 -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <span class="chart-title">🥧 科目时间分布</span>
+                </div>
+                <div class="pie-chart-container">
+                    <svg class="pie-chart" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="#3B82F6" stroke-width="20" stroke-dasharray="75 175" transform="rotate(-90 50 50)"/>
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="#22C55E" stroke-width="20" stroke-dasharray="65 185" stroke-dashoffset="-75" transform="rotate(-90 50 50)"/>
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="#F59E0B" stroke-width="20" stroke-dasharray="40 210" stroke-dashoffset="-140" transform="rotate(-90 50 50)"/>
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="#A855F7" stroke-width="20" stroke-dasharray="25 225" stroke-dashoffset="-180" transform="rotate(-90 50 50)"/>
+                    </svg>
+                    <div class="pie-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #3B82F6;"></div>
+                            <span class="legend-text">数学</span>
+                            <span class="legend-value">40%</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #22C55E;"></div>
+                            <span class="legend-text">语文</span>
+                            <span class="legend-value">35%</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #F59E0B;"></div>
+                            <span class="legend-text">英语</span>
+                            <span class="legend-value">20%</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #A855F7;"></div>
+                            <span class="legend-text">其他</span>
+                            <span class="legend-value">5%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 效率时段分析 -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <span class="chart-title">🔥 效率时段TOP3</span>
+                </div>
+                <div class="efficiency-list">
+                    <div class="efficiency-item">
+                        <div class="efficiency-rank">1</div>
+                        <div class="efficiency-info">
+                            <div class="efficiency-name">周一晚上</div>
+                            <div class="efficiency-desc">19:00-21:00</div>
+                        </div>
+                        <div class="efficiency-value">95%</div>
+                    </div>
+                    <div class="efficiency-item">
+                        <div class="efficiency-rank silver">2</div>
+                        <div class="efficiency-info">
+                            <div class="efficiency-name">周三下午</div>
+                            <div class="efficiency-desc">16:00-18:00</div>
+                        </div>
+                        <div class="efficiency-value">88%</div>
+                    </div>
+                    <div class="efficiency-item">
+                        <div class="efficiency-rank bronze">3</div>
+                        <div class="efficiency-info">
+                            <div class="efficiency-name">周五晚上</div>
+                            <div class="efficiency-desc">19:00-21:00</div>
+                        </div>
+                        <div class="efficiency-value">82%</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="share-btn" onclick="shareReport()">
+                <span>📤</span>
+                <span>分享周报</span>
+            </button>
+        </div>
+
+        <nav class="bottom-nav">
+            <a href="parent-dashboard.html" class="nav-item">
+                <span class="nav-item-icon">🏠</span>
+                <span class="nav-item-text">首页</span>
+            </a>
+            <a href="parent-create-plan.html" class="nav-item">
+                <span class="nav-item-icon">📋</span>
+                <span class="nav-item-text">计划</span>
+            </a>
+            <a href="parent-statistics.html" class="nav-item active">
+                <span class="nav-item-icon">📊</span>
+                <span class="nav-item-text">统计</span>
+            </a>
+            <a href="settings.html" class="nav-item">
+                <span class="nav-item-icon">👤</span>
+                <span class="nav-item-text">我的</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        // 时间范围切换
+        document.querySelectorAll('.time-option').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.time-option').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // 分享周报
+        function shareReport() {
+            if (navigator.share) {
+                navigator.share({
+                    title: '小明的学习周报',
+                    text: '本周完成21个番茄钟，专注时长8.5小时，继续加油！'
+                });
+            } else {
+                alert('周报已生成，可以截图分享给家人！');
+            }
+        }
+    </script>
+</body>
+</html>
