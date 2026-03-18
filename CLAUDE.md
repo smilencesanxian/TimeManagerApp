@@ -37,6 +37,14 @@ UI页面实现规范细节都在docs/design/UX/目录中
 - 提交前必须：无 TypeScript 编译错误，无 Python lint 错误
 - 开发完成后需要同步生成/更新当前项目进展和状态
 
+### Git 提交规范
+- 每次功能开发完成后，自动执行 `git add .` 和 `git commit`
+- commit 格式：`feat(模块): 描述内容`，例如：
+  - `feat(auth): 新增手机号登录接口`
+  - `feat(ranking): 家长端本周评比页完成`
+  - `fix(habit): 修复打卡状态不刷新问题`
+- commit 完成后，询问我是否需要执行 `git push`
+
 ### React Native 规范
 - 样式统一用 `StyleSheet.create()`，禁止内联样式对象
 - 颜色、字体、间距使用 `src/theme/` 中的设计 token，禁止硬编码

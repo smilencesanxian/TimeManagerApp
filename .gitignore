@@ -13,6 +13,7 @@ miniapp/dist/
 .env
 .env.local
 .env.*.local
+.env.test
 
 # Database
 *.db
@@ -36,6 +37,15 @@ Thumbs.db
 miniapp/test-results/
 miniapp/playwright-report/
 miniapp/e2e/.test-state.json
+backend/test-results/
+
+# Build cache
+miniapp/.swc/
+
+# Debug / temp scripts
+miniapp/debug_test.ts
+miniapp/e2e_test.js
+miniapp/e2e/debug-profile.spec.ts
 
 # TypeScript cache
 *.tsbuildinfo
