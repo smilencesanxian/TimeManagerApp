@@ -29,6 +29,8 @@ model User {
   habits         Habit[]         @relation("ChildHabits")
   createdHabits  Habit[]         @relation("CreatedHabits")
   habitCheckins  HabitCheckin[]  @relation("ChildCheckins")
+  sentComments   ParentComment[] @relation("SentComments")
+  receivedComments ParentComment[] @relation("ReceivedComments")
 
   @@map("users")
 }
@@ -151,6 +153,19 @@ model HabitCheckin {
 
   @@unique([habitId, childId, date])
   @@map("habit_checkins")
+}
+
+model ParentComment {
+  id        String   @id @default(uuid())
+  parentId  String   @map("parent_id")
+  childId   String   @map("child_id")
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  parent User @relation("SentComments", fields: [parentId], references: [id], onDelete: Cascade)
+  child  User @relation("ReceivedComments", fields: [childId], references: [id], onDelete: Cascade)
+
+  @@map("parent_comments")
 }
 
 model RefreshToken {

@@ -457,6 +457,81 @@
   margin-bottom: 40px;
 }
 
+.inputError {
+  border-color: #FF4D4F !important;
+}
+
+.errorText {
+  font-size: 22px;
+  color: #FF4D4F;
+  margin-top: 8px;
+  display: block;
+}
+
+.warnText {
+  font-size: 22px;
+  color: var(--color-text-secondary);
+  text-align: right;
+  display: block;
+  margin-top: 4px;
+}
+
+.aiLoading {
+  margin: 12px 0;
+  padding: 16px 24px;
+  background: #F5F7FA;
+  border-radius: 12px;
+}
+
+.aiLoadingText {
+  font-size: 26px;
+  color: var(--color-text-secondary);
+}
+
+.aiResult {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 12px 0;
+  padding: 16px 24px;
+  background: #F0F7FF;
+  border-radius: 12px;
+  border: 2px solid var(--color-primary);
+}
+
+.aiResultLabel {
+  font-size: 24px;
+  color: var(--color-text-secondary);
+}
+
+.aiSubjectTag {
+  font-size: 26px;
+  color: var(--color-primary);
+  font-weight: 600;
+  background: #E6F0FF;
+  padding: 4px 16px;
+  border-radius: 24px;
+}
+
+.aiDuration {
+  font-size: 26px;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.aiFallback {
+  margin: 12px 0;
+  padding: 16px 24px;
+  background: #FFF7E6;
+  border-radius: 12px;
+  border: 2px solid #FFD666;
+}
+
+.aiFallbackText {
+  font-size: 26px;
+  color: #D48806;
+}
+
 .modalLabel {
   font-size: 26px;
   color: var(--color-text-secondary);

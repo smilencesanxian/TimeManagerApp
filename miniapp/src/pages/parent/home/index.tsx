@@ -1,11 +1,11 @@
 import { View, Text, ScrollView, Input } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { useAuthStore } from '../../../store/authStore'
 import { useTaskStore } from '../../../store/taskStore'
 import { useHabitStore } from '../../../store/habitStore'
 import { wsClient } from '../../../services/wsClient'
-import { authApi, achievementApi, AchievementSummary, Task } from '../../../services/api'
+import { authApi, achievementApi, aiApi, AchievementSummary, Task } from '../../../services/api'
 import styles from './index.module.scss'
 
 const SUBJECTS = ['语文', '数学', '英语', '阅读', '运动', '其他']
@@ -37,7 +37,7 @@ interface AddTaskForm {
 
 const DEFAULT_FORM = (childId = ''): AddTaskForm => ({
   childId,
-  date: new Date().toISOString().slice(0, 10),
+  date: (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}` })(),
   subject: '数学',
   title: '',
   description: '',
@@ -61,6 +61,10 @@ export default function ParentHomePage() {
   const [form, setForm] = useState<AddTaskForm>(DEFAULT_FORM())
   const [submitting, setSubmitting] = useState(false)
   const [generatingInvite, setGeneratingInvite] = useState(false)
+  const [descInput, setDescInput] = useState('')
+  const [descError, setDescError] = useState(false)
+  const [aiStatus, setAiStatus] = useState<'idle' | 'loading' | 'success' | 'fallback'>('idle')
+  const aiTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const loadChildren = useCallback(async () => {
     try {
@@ -137,29 +141,81 @@ export default function ParentHomePage() {
     loadChildren()
   }
 
-  const handleAddTask = async () => {
-    if (!form.title.trim()) {
-      Taro.showToast({ title: '请填写任务标题', icon: 'none' })
+  const handleDescInput = (value: string) => {
+    setDescInput(value)
+    setDescError(false)
+
+    // 清除旧的防抖定时器
+    if (aiTimerRef.current) clearTimeout(aiTimerRef.current)
+
+    if (!value.trim()) {
+      setAiStatus('idle')
       return
+    }
+
+    // 800ms 防抖后自动触发 AI 解析
+    aiTimerRef.current = setTimeout(async () => {
+      setAiStatus('loading')
+      try {
+        const result = await aiApi.parseTask(value.trim())
+        setForm((f) => ({
+          ...f,
+          title: value.trim().slice(0, 50),
+          subject: result.subject,
+          duration: String(result.duration),
+          priority: String(result.priority),
+        }))
+        setAiStatus('success')
+      } catch {
+        // AI 失败：填入描述作为标题，保持当前学科/时长
+        setForm((f) => ({ ...f, title: value.trim().slice(0, 50) }))
+        setAiStatus('fallback')
+      }
+    }, 800)
+  }
+
+  const resetModal = () => {
+    setDescInput('')
+    setDescError(false)
+    setAiStatus('idle')
+    if (aiTimerRef.current) clearTimeout(aiTimerRef.current)
+    setForm(DEFAULT_FORM(selectedChild?.id ?? ''))
+  }
+
+  const handleAddTask = async () => {
+    if (!form.title.trim() && !descInput.trim()) {
+      setDescError(true)
+      return
+    }
+    // 如果 title 还未填（AI 未完成），用 descInput 作为标题
+    if (!form.title.trim()) {
+      setForm((f) => ({ ...f, title: descInput.trim().slice(0, 50) }))
     }
     const duration = parseInt(form.duration, 10)
     if (isNaN(duration) || duration <= 0 || duration > 480) {
       Taro.showToast({ title: '时长应在1-480分钟', icon: 'none' })
       return
     }
+    // childId 兜底：selectedChild 或 children[0]
+    const childId = form.childId || selectedChild?.id || children[0]?.id || ''
+    if (!childId) {
+      Taro.showToast({ title: '请先选择孩子', icon: 'none' })
+      return
+    }
+    const titleToSubmit = form.title.trim() || descInput.trim().slice(0, 50)
     setSubmitting(true)
     try {
       await createTask({
-        childId: form.childId,
+        childId,
         date: form.date,
         subject: form.subject,
-        title: form.title.trim(),
+        title: titleToSubmit,
         description: form.description.trim() || undefined,
         duration,
         priority: parseInt(form.priority, 10),
       })
       setShowAddModal(false)
-      setForm(DEFAULT_FORM(selectedChild?.id ?? ''))
+      resetModal()
       Taro.showToast({ title: '任务创建成功', icon: 'success' })
     } catch (e: unknown) {
       Taro.showToast({ title: (e as Error).message || '创建失败', icon: 'none' })
@@ -298,11 +354,8 @@ export default function ParentHomePage() {
               <View
                 className={styles.sectionAction}
                 onClick={() => {
-                  if (!selectedChild) {
-                    Taro.showToast({ title: '请先选择孩子', icon: 'none' })
-                    return
-                  }
-                  setForm(DEFAULT_FORM(selectedChild.id))
+                  setForm(DEFAULT_FORM(selectedChild?.id ?? children[0]?.id ?? ''))
+                  resetModal()
                   setShowAddModal(true)
                 }}
                 data-testid='btn-add-task'
@@ -329,7 +382,7 @@ export default function ParentHomePage() {
               )}
             </View>
           ) : (
-            <View className={styles.taskList}>
+            <View data-testid='task-list' className={styles.taskList}>
               {tasks.map((task) => {
                 const cfg = SUBJECT_CONFIG[task.subject] ?? SUBJECT_CONFIG['其他']
                 const isActive = task.status === 'doing'
@@ -337,6 +390,7 @@ export default function ParentHomePage() {
                 return (
                   <View
                     key={task.id}
+                    data-testid={`task-item-${task.id}`}
                     className={[
                       styles.taskItem,
                       isActive ? styles.taskItemActive : '',
@@ -349,7 +403,7 @@ export default function ParentHomePage() {
                     <View className={styles.taskInfo}>
                       <Text className={styles.taskName}>{task.title}</Text>
                       <Text className={styles.taskMeta}>
-                        {task.subject} · {task.duration}分钟
+                        {task.subject} · <Text data-testid='task-duration'>{task.duration}</Text>分钟
                         {doing > 0 && isActive ? ' · ⏱️进行中' : ''}
                       </Text>
                     </View>
@@ -434,6 +488,7 @@ export default function ParentHomePage() {
           className={styles.fab}
           onClick={() => {
             setForm(DEFAULT_FORM(selectedChild.id))
+            resetModal()
             setShowAddModal(true)
           }}
           data-testid='fab-add-task'
@@ -552,22 +607,54 @@ export default function ParentHomePage() {
       {/* ===== 添加任务弹窗 ===== */}
       {showAddModal && (
         <View className={styles.modalOverlay}>
-          <View className={styles.modal}>
+          <View data-testid='quick-add-task-modal' className={styles.modal}>
             <Text className={styles.modalTitle}>添加任务</Text>
 
-            <Text className={styles.modalLabel}>任务标题</Text>
+            {/* AI 描述输入区 */}
+            <Text className={styles.modalLabel}>用自然语言描述任务</Text>
             <Input
-              className={styles.modalInput}
-              placeholder='输入任务标题'
-              value={form.title}
-              onInput={(e) => setForm((f) => ({ ...f, title: e.detail.value }))}
+              data-testid='input-task-desc'
+              className={[styles.modalInput, descError ? styles.inputError : ''].join(' ')}
+              placeholder='例如：做30分钟数学口算'
+              value={descInput}
+              maxlength={100}
+              onInput={(e) => handleDescInput(e.detail.value)}
             />
+            {descError && (
+              <Text data-testid='task-desc-error' className={styles.errorText}>请输入任务描述</Text>
+            )}
+            {descInput.length >= 90 && (
+              <Text data-testid='task-desc-length-warning' className={styles.warnText}>
+                {descInput.length}/100
+              </Text>
+            )}
 
+            {/* AI 识别结果 */}
+            {aiStatus === 'loading' && (
+              <View className={styles.aiLoading}>
+                <Text className={styles.aiLoadingText}>⏳ AI识别中...</Text>
+              </View>
+            )}
+            {aiStatus === 'success' && (
+              <View data-testid='ai-parse-result' className={styles.aiResult}>
+                <Text className={styles.aiResultLabel}>AI识别：</Text>
+                <Text data-testid='ai-subject-tag' className={styles.aiSubjectTag}>{form.subject}</Text>
+                <Text data-testid='ai-estimated-duration' className={styles.aiDuration}>{form.duration}分钟</Text>
+              </View>
+            )}
+            {aiStatus === 'fallback' && (
+              <View data-testid='ai-parse-fallback' className={styles.aiFallback}>
+                <Text className={styles.aiFallbackText}>AI识别失败，请手动选择学科和时长</Text>
+              </View>
+            )}
+
+            {/* 科目 */}
             <Text className={styles.modalLabel}>科目</Text>
             <View className={styles.tagRow}>
               {SUBJECTS.map((s) => (
                 <View
                   key={s}
+                  data-testid={`subject-option-${s}`}
                   className={[styles.tag, form.subject === s ? styles.tagActive : ''].join(' ')}
                   onClick={() => setForm((f) => ({ ...f, subject: s }))}
                 >
@@ -578,21 +665,18 @@ export default function ParentHomePage() {
               ))}
             </View>
 
+            {/* 时长 */}
             <Text className={styles.modalLabel}>时长（分钟）</Text>
-            <View className={styles.tagRow}>
-              {['15', '30', '45', '60', '90'].map((d) => (
-                <View
-                  key={d}
-                  className={[styles.tag, form.duration === d ? styles.tagActive : ''].join(' ')}
-                  onClick={() => setForm((f) => ({ ...f, duration: d }))}
-                >
-                  <Text className={[styles.tagText, form.duration === d ? styles.tagTextActive : ''].join(' ')}>
-                    {d}
-                  </Text>
-                </View>
-              ))}
-            </View>
+            <Input
+              data-testid='input-task-duration'
+              className={styles.modalInput}
+              type='number'
+              placeholder='输入分钟数（1-480）'
+              value={form.duration}
+              onInput={(e) => setForm((f) => ({ ...f, duration: e.detail.value }))}
+            />
 
+            {/* 优先级 */}
             <Text className={styles.modalLabel}>优先级</Text>
             <View className={styles.tagRow}>
               {[{ v: '1', l: '🔴 高' }, { v: '2', l: '🟡 中' }, { v: '3', l: '🟢 低' }].map(({ v, l }) => (
@@ -608,19 +692,12 @@ export default function ParentHomePage() {
               ))}
             </View>
 
-            <Text className={styles.modalLabel}>备注（选填）</Text>
-            <Input
-              className={styles.modalInput}
-              placeholder='选填'
-              value={form.description}
-              onInput={(e) => setForm((f) => ({ ...f, description: e.detail.value }))}
-            />
-
             <View className={styles.modalActions}>
-              <View className={styles.btnSecondary} onClick={() => setShowAddModal(false)}>
+              <View className={styles.btnSecondary} onClick={() => { setShowAddModal(false); resetModal() }}>
                 <Text className={styles.btnSecondaryText}>取消</Text>
               </View>
               <View
+                data-testid='btn-confirm-add-task'
                 className={[styles.btnPrimary, submitting ? styles.btnDisabled : ''].join(' ')}
                 onClick={submitting ? undefined : handleAddTask}
               >

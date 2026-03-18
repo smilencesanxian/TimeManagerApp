@@ -71,7 +71,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
   },
 
   appendTask: (task) => {
-    const today = new Date().toISOString().slice(0, 10)
+    const d = new Date(); const today = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
     // 只添加今日任务（当前视图显示今日）
     if (task.date === today) {
       const exists = get().tasks.some((t) => t.id === task.id)

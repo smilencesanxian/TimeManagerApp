@@ -14,7 +14,8 @@ async function request<T>(
   method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   path: string,
   data?: Record<string, unknown>,
-  withAuth = true
+  withAuth = true,
+  timeout?: number
 ): Promise<T> {
   const header: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -32,6 +33,7 @@ async function request<T>(
     method,
     data,
     header,
+    ...(timeout !== undefined ? { timeout } : {}),
   })
 
   if (res.statusCode === 401) {
@@ -46,6 +48,7 @@ async function request<T>(
         method,
         data,
         header,
+        ...(timeout !== undefined ? { timeout } : {}),
       })
       if (retryRes.statusCode >= 400) {
         throw new Error(retryRes.data.message)
@@ -304,3 +307,38 @@ export const achievementApi = {
     request<WeeklyStats>('GET', '/achievements/weekly'),
 }
 
+
+export interface ParsedTask {
+  subject: string
+  title: string
+  duration: number
+  priority: number
+}
+
+export const aiApi = {
+  parseTask: (description: string) =>
+    request<ParsedTask>('POST', '/ai/parse-task', { description }, true, 6000),
+
+  suggestComments: (childName: string, taskInfo?: string) =>
+    request<string[]>('POST', '/ai/suggest-comments', { childName, taskInfo }, true, 8000),
+}
+
+// 心语评语 API
+export interface ParentComment {
+  id: string
+  parentId: string
+  childId: string
+  content: string
+  createdAt: string
+}
+
+export const commentApi = {
+  send: (childId: string, content: string) =>
+    request<ParentComment>('POST', '/comments', { childId, content }),
+
+  list: (childId?: string) =>
+    request<ParentComment[]>('GET', `/comments${childId ? `?childId=${childId}` : ''}`),
+
+  delete: (id: string) =>
+    request<void>('DELETE', `/comments/${id}`),
+}

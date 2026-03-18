@@ -439,7 +439,7 @@ export default function ChildTasksPage() {
               <Text className={styles.emptyDesc}>好好休息或自由阅读吧</Text>
             </View>
           ) : (
-            <ScrollView scrollY className={styles.taskListScroll}>
+            <ScrollView scrollY className={styles.taskListScroll} data-testid='task-list'>
               {tasks.map((task) => {
                 const cfg = SUBJECT_CONFIG[task.subject] ?? SUBJECT_CONFIG['其他']
                 const isActive = task.status === 'doing'

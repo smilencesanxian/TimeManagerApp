@@ -1,0 +1,143 @@
+.page {
+  min-height: 100vh;
+  background: #F8FAFF;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1E293B;
+}
+
+.childRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.childBtn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: #E2E8F0;
+  font-size: 14px;
+  color: #475569;
+  cursor: pointer;
+}
+
+.childBtnActive {
+  background: #6366F1;
+  color: #fff;
+}
+
+.suggestions {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.suggestLabel {
+  font-size: 13px;
+  color: #94A3B8;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.suggestionList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.suggestionItem {
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #F1F5F9;
+  font-size: 14px;
+  color: #334155;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.15s;
+}
+
+.selected {
+  border-color: #6366F1;
+  background: #EEF2FF;
+  color: #6366F1;
+}
+
+.inputSection {
+  margin-bottom: 16px;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 10px;
+  font-size: 15px;
+  color: #1E293B;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.textareaError {
+  border-color: #EF4444;
+}
+
+.counter {
+  text-align: right;
+  font-size: 12px;
+  color: #94A3B8;
+  margin-top: 4px;
+}
+
+.error {
+  color: #EF4444;
+}
+
+.emptyError {
+  color: #EF4444;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.sendBtn {
+  width: 100%;
+  background: #6366F1;
+  color: #fff;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 14px;
+  border: none;
+  cursor: pointer;
+
+  &[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.successToast {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #22C55E;
+  color: #fff;
+  padding: 10px 24px;
+  border-radius: 20px;
+  font-size: 15px;
+  font-weight: 500;
+  z-index: 9999;
+}
