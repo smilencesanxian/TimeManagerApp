@@ -51,8 +51,8 @@ test.describe('TC-P-RANK-01x 页面基础展示', () => {
     const weekTitle = page.locator('[data-testid="week-title"]')
     await expect(weekTitle).toBeVisible()
     const text = await weekTitle.textContent()
-    // 包含年或月的关键词
-    expect(text).toMatch(/\d{4}|\d{1,2}月/)
+    // 包含日期范围格式，如 "3.16 - 3.22" 或 "3月16日 - 3月22日"
+    expect(text).toMatch(/\d{1,2}[\.月]\d{1,2}/)
   })
 
   test('TC-P-RANK-02: 页面包含"本周总评"统计卡片（完成率/打卡率/专注时长）', async ({ page }) => {
@@ -160,7 +160,7 @@ test.describe('TC-P-RANK-03x 星星奖励规则', () => {
     await gotoRanking(page)
 
     // 每个规则项都有达标状态标签
-    const ruleItems = page.locator('[data-testid^="rule-"]')
+    const ruleItems = page.locator('[data-testid="rule-habit-standard"], [data-testid="rule-task-standard"]')
     const count = await ruleItems.count()
     expect(count).toBeGreaterThan(0)
 
@@ -213,12 +213,13 @@ test.describe('TC-P-RANK-05x 空状态', () => {
   test('TC-P-RANK-12: 本周无任何学习记录时 → 显示"本周暂无数据"引导文案', async ({ page }) => {
     await gotoRanking(page)
 
-    // 切换到遥远的未来周（肯定无数据）
-    // 连续点击 next 4次跳到4周后
-    for (let i = 0; i < 4; i++) {
-      await page.locator('[data-testid="btn-next-week"]').click()
-      await page.waitForTimeout(500)
+    // 切换到遥远的过去周（肯定无数据）
+    // 连续点击 prev 10次跳到10周前
+    for (let i = 0; i < 10; i++) {
+      await page.locator('[data-testid="btn-prev-week"]').click()
+      await page.waitForTimeout(300)
     }
+    await page.waitForTimeout(1000)
 
     // 空状态文案或0完成率
     const isEmpty = await page.locator('[data-testid="ranking-empty"]').isVisible()

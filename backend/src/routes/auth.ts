@@ -157,21 +157,32 @@ router.put(
   }
 );
 
+// GET /api/v1/auth/invite  家长获取最近的邀请码
+router.get(
+  '/invite',
+  authenticate,
+  async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const result = await authService.getLatestInviteCode(req.user!.userId);
+      if (!result) {
+        res.status(404).json({ code: 404, message: '暂无邀请码' });
+        return;
+      }
+      res.status(200).json({ code: 200, message: 'success', data: result });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 // POST /api/v1/auth/invite  家长生成邀请码
 router.post(
   '/invite',
   authenticate,
-  [body('childNickname').notEmpty().withMessage('孩子昵称不能为空')],
   async (req: AuthRequest, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(400).json({ code: 400, message: '参数错误', errors: errors.array() });
-      return;
-    }
-
     try {
-      const { childNickname } = req.body as { childNickname: string };
-      const result = await authService.generateInviteCode(req.user!.userId, childNickname);
+      const { childNickname } = req.body as { childNickname?: string };
+      const result = await authService.generateInviteCode(req.user!.userId, childNickname || '新孩子');
       res.status(200).json({ code: 200, message: 'success', data: result });
     } catch (err) {
       next(err);

@@ -342,3 +342,24 @@ export const commentApi = {
   delete: (id: string) =>
     request<void>('DELETE', `/comments/${id}`),
 }
+
+// 统计数据 API
+export interface WeeklyStatsData {
+  focusDuration: number
+  taskTotal: number
+  taskDone: number
+  taskCompletionRate: number
+  habitCheckIns: number
+  weekStart: string
+  weekEnd: string
+}
+
+export const statsApi = {
+  getWeekly: (startDate?: string, childId?: string) => {
+    const params = new URLSearchParams()
+    if (startDate) params.set('startDate', startDate)
+    if (childId) params.set('childId', childId)
+    const qs = params.toString()
+    return request<WeeklyStatsData>('GET', `/stats/weekly${qs ? `?${qs}` : ''}`)
+  },
+}

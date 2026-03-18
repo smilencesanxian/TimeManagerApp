@@ -5,6 +5,10 @@ export default defineAppConfig({
     'pages/parent/plan/index',
     'pages/parent/ranking/index',
     'pages/parent/profile/index',
+    'pages/parent/settings/index',
+    'pages/parent/settings/schedule/index',
+    'pages/parent/settings/notification/index',
+    'pages/parent/child-manage/index',
     'pages/parent/habit/create/index',
     'pages/parent/habit/edit/index',
     'pages/parent/comment/index',
@@ -24,6 +28,7 @@ export default defineAppConfig({
     list: [
       { pagePath: 'pages/child/tasks/index', text: '今日任务' },
       { pagePath: 'pages/child/achievements/index', text: '成就' },
+      { pagePath: 'pages/child/message/index', text: '心语' },
     ],
     color: '#94A3B8',
     selectedColor: '#6366F1',

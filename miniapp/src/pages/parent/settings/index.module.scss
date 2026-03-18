@@ -1,0 +1,140 @@
+.container {
+  min-height: 100vh;
+  background: #F8FAFC;
+}
+
+.header {
+  height: 112px;
+  background: #FFFFFF;
+  border-bottom: 2px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  gap: 24px;
+}
+
+.backBtn {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.backText {
+  font-size: 48px;
+  color: #1E293B;
+}
+
+.headerTitle {
+  font-size: 36px;
+  font-weight: 600;
+  color: #1E293B;
+}
+
+.content {
+  padding: 32px;
+}
+
+.group {
+  background: #FFFFFF;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  margin-bottom: 32px;
+}
+
+.groupTitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: #64748B;
+  padding: 28px 32px 12px;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  padding: 28px 32px;
+  border-bottom: 2px solid #F1F5F9;
+  cursor: pointer;
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+
+  &:active {
+    background: #F8FAFC;
+  }
+}
+
+.itemIcon {
+  font-size: 40px;
+  margin-right: 24px;
+}
+
+.itemInfo {
+  flex: 1;
+}
+
+.itemName {
+  font-size: 30px;
+  font-weight: 500;
+  color: #1E293B;
+  display: block;
+}
+
+.itemDesc {
+  font-size: 24px;
+  color: #64748B;
+  margin-top: 4px;
+  display: block;
+}
+
+.itemArrow {
+  font-size: 36px;
+  color: #94A3B8;
+}
+
+.aboutPanel {
+  padding: 24px 32px;
+  background: #F8FAFC;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.appName {
+  font-size: 32px;
+  font-weight: 600;
+  color: #1E293B;
+}
+
+.appVersion {
+  font-size: 28px;
+  color: #6366F1;
+  font-weight: 500;
+}
+
+.logoutBtn {
+  background: #FFFFFF;
+  border-radius: 24px;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+
+  &:active {
+    background: #FFF0F0;
+  }
+}
+
+.logoutText {
+  font-size: 30px;
+  font-weight: 500;
+  color: #EF4444;
+}

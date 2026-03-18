@@ -91,3 +91,10 @@ export async function deleteUserById(userId: string) {
 export async function findFamilyByParentAndChild(parentId: string, childId: string) {
   return prisma.family.findUnique({ where: { parentId_childId: { parentId, childId } } });
 }
+
+export async function findLatestInviteByParentId(parentId: string) {
+  return prisma.family.findFirst({
+    where: { parentId, inviteCode: { not: null } },
+    orderBy: { createdAt: 'desc' },
+  });
+}

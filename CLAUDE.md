@@ -42,6 +42,7 @@ UI页面实现规范细节都在docs/design/UX/目录中
 - 颜色、字体、间距使用 `src/theme/` 中的设计 token，禁止硬编码
 - 家长端和孩子端**共享组件**放在独立的 `shared/` 目录
 - 每个页面对应一个目录：`screens/Login/index.tsx` + `screens/Login/styles.ts`
+- **所有可交互元素和关键展示区域必须加 `data-testid`**，包括：按钮、输入框、Modal 容器、列表项、状态展示区域。命名规则：`动词-名词`（如 `btn-confirm-add-task`）或 `名词-类型`（如 `input-task-desc`、`task-list`）。E2E 测试必须通过 testid 定位元素，不允许依赖 CSS 类名或文字内容。
 
 ### FastAPI 规范
 - Router 按业务模块拆分，统一注册到 `app/api/v1/router.py`
@@ -167,11 +168,9 @@ $ npx tsc --noEmit
 - [x] 临时作业推送（Modal）
 - [x] 发送心语评语
 - [x] WebSocket 实时同步
-- [x] 学习报表 & 数据看板
-- [x] 设置页面
-- [x] 每日/每周 AI 总结展示（配合后端周报接口）
-- [x] 睡眠时间设置（配合后端预警接口）
-- [x] 知识库管理页面（文档 CRUD、系统/自定义分类）
+- [x] 计划管理（任务+习惯Tab）
+- [x] 设置页（个人中心+设置+孩子管理）
+- [x] 本周评比页（任务/习惯/星星统计）
 
 ### 孩子端（KidApp）
 - [x] 项目初始化 & 导航结构
@@ -180,8 +179,35 @@ $ npx tsc --noEmit
 - [x] 任务详情 & 番茄钟计时器
 - [x] WebSocket 实时同步（new_task / parent_comment）
 - [x] 成就 / 激励系统（真实 API 数据）
-- [x] 睡眠提醒 / 时间预警展示
-- [x] AI 学习助手对话
+- [x] 心语墙页面
+- [x] 心语墙TabBar入口
+
+---
+
+## 📋 Phase 6 开发计划（MVP补全）
+
+### Step 1：孩子端TabBar补充心语入口 ✅
+- 文件：`miniapp/src/app.config.ts`
+- 改动：TabBar新增心语Tab（页面已有）
+
+### Step 2：家长端个人中心页（profile）✅
+- 新建：`miniapp/src/pages/parent/profile/index.tsx`
+- 展示家长昵称、绑定孩子列表、跳转到设置/孩子管理入口
+
+### Step 3：家长端设置页（settings）✅
+- 新建：`miniapp/src/pages/parent/settings/index.tsx`（主菜单）
+- 新建：`miniapp/src/pages/parent/settings/schedule/index.tsx`（作息设置）
+- 新建：`miniapp/src/pages/parent/settings/notification/index.tsx`（通知设置）
+- 功能：账号信息、作息设置（睡觉时间）、通知开关、退出登录
+
+### Step 4：家长端孩子管理页（child-manage）✅
+- 新建：`miniapp/src/pages/parent/child-manage/index.tsx`
+- 功能：查看已绑定孩子、生成新邀请码
+
+### Step 5：家长端本周评比页（ranking）✅
+- 替换：`miniapp/src/pages/parent/ranking/index.tsx`
+- 后端：新增 `GET /api/v1/stats/weekly`、`GET /api/v1/auth/invite`
+- 功能：周选择器、任务完成率、习惯打卡率、星星奖励汇总
 
 ---
 

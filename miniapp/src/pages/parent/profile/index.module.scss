@@ -1,2 +1,192 @@
-.container { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-.text { font-size: 30px; color: #666; }
+.container {
+  min-height: 100vh;
+  background: #F8FAFC;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 128px;
+}
+
+.header {
+  height: 112px;
+  background: #FFFFFF;
+  border-bottom: 2px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+}
+
+.headerTitle {
+  font-size: 36px;
+  font-weight: 600;
+  color: #1E293B;
+}
+
+.content {
+  flex: 1;
+  padding: 32px;
+}
+
+.userCard {
+  background: #FFFFFF;
+  border-radius: 24px;
+  padding: 40px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarText {
+  font-size: 56px;
+}
+
+.userInfo {
+  flex: 1;
+}
+
+.nickname {
+  font-size: 36px;
+  font-weight: 600;
+  color: #1E293B;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.roleTag {
+  font-size: 24px;
+  color: #64748B;
+}
+
+.section {
+  background: #FFFFFF;
+  border-radius: 24px;
+  padding: 32px;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+
+.sectionTitle {
+  font-size: 26px;
+  font-weight: 600;
+  color: #64748B;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 24px;
+}
+
+.loadingText, .emptyText {
+  font-size: 28px;
+  color: #94A3B8;
+}
+
+.childItem {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 0;
+  border-bottom: 2px solid #F1F5F9;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.childAvatar {
+  font-size: 44px;
+}
+
+.childName {
+  font-size: 30px;
+  font-weight: 500;
+  color: #1E293B;
+}
+
+.menuGroup {
+  background: #FFFFFF;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  margin-bottom: 32px;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  padding: 32px;
+  border-bottom: 2px solid #F1F5F9;
+  cursor: pointer;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:active {
+    background: #F8FAFC;
+  }
+}
+
+.menuIcon {
+  font-size: 40px;
+  margin-right: 24px;
+}
+
+.menuLabel {
+  flex: 1;
+  font-size: 30px;
+  font-weight: 500;
+  color: #1E293B;
+}
+
+.menuArrow {
+  font-size: 36px;
+  color: #94A3B8;
+}
+
+.bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 128px;
+  background: #FFFFFF;
+  border-top: 2px solid #E2E8F0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 100;
+}
+
+.navItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 16px 32px;
+  color: #94A3B8;
+}
+
+.navItemActive {
+  color: #6366F1;
+}
+
+.navIcon {
+  font-size: 44px;
+  line-height: 1;
+}
+
+.navText {
+  font-size: 20px;
+}

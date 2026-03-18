@@ -6,6 +6,7 @@ import habitsRouter from './habits.js';
 import achievementsRouter from './achievements.js';
 import aiRouter from './ai.js';
 import commentsRouter from './comments.js';
+import statsRouter from './stats.js';
 
 const router = Router();
 
@@ -16,6 +17,7 @@ router.use('/habits', habitsRouter);
 router.use('/achievements', achievementsRouter);
 router.use('/ai', aiRouter);
 router.use('/comments', commentsRouter);
+router.use('/stats', statsRouter);
 
 // 健康检查
 router.get('/health', (_req, res) => {

@@ -1,0 +1,128 @@
+.container {
+  min-height: 100vh;
+  background: #F8FAFC;
+}
+
+.header {
+  height: 112px;
+  background: #FFFFFF;
+  border-bottom: 2px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  gap: 24px;
+}
+
+.backBtn {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.backText {
+  font-size: 48px;
+  color: #1E293B;
+}
+
+.headerTitle {
+  font-size: 36px;
+  font-weight: 600;
+  color: #1E293B;
+}
+
+.content {
+  padding: 32px;
+}
+
+.card {
+  background: #FFFFFF;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  margin-bottom: 32px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  padding: 32px;
+  border-bottom: 2px solid #F1F5F9;
+}
+
+.rowLast {
+  border-bottom: none;
+}
+
+.rowLabel {
+  flex: 1;
+  font-size: 30px;
+  font-weight: 500;
+  color: #1E293B;
+}
+
+.toggle {
+  width: 96px;
+  height: 56px;
+  background: #E2E8F0;
+  border-radius: 28px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggleOn {
+  background: #22C55E;
+}
+
+.toggleDot {
+  width: 48px;
+  height: 48px;
+  background: #FFFFFF;
+  border-radius: 50%;
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+
+  .toggleOn & {
+    transform: translateX(40px);
+  }
+}
+
+.saveBtn {
+  background: #6366F1;
+  border-radius: 24px;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+
+  &:active {
+    opacity: 0.85;
+  }
+}
+
+.saveBtnText {
+  font-size: 32px;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.successToast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.75);
+  border-radius: 16px;
+  padding: 24px 40px;
+  z-index: 999;
+}
+
+.successText {
+  font-size: 30px;
+  color: #FFFFFF;
+}

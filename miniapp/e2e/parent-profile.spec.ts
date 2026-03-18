@@ -131,12 +131,12 @@ test.describe('TC-P-PROF-02x 孩子管理 - 邀请码', () => {
   test('TC-P-PROF-07: 孩子用邀请码绑定家长 → 绑定成功，孩子信息出现在家长孩子列表', async ({ page }) => {
     // 先通过 API 生成邀请码
     const inviteRes = await apiPost('/auth/invite', {}, parentLogin.token) as {
-      data: { code: string }
+      data: { inviteCode: string }
     }
-    const code = inviteRes.data.code
+    const inviteCode = inviteRes.data.inviteCode
 
     // 孩子账号绑定
-    const bindRes = await apiPost('/auth/bind', { code }, childLogin.token) as { code: number }
+    const bindRes = await apiPost('/auth/bind', { inviteCode }, childLogin.token) as { code: number }
     expect(bindRes.code).toBe(200)
 
     // 验证家长个人中心孩子列表存在

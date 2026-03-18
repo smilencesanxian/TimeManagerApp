@@ -148,7 +148,7 @@ export async function generateInviteCode(parentId: string, childNickname: string
     role: 'child',
   });
 
-  const inviteCode = uuidv4().slice(0, 8).toUpperCase();
+  const inviteCode = uuidv4().replace(/-/g, '').slice(0, 6).toUpperCase();
   await userRepo.createFamily(parentId, tempChild.id, inviteCode);
 
   return { inviteCode, childId: tempChild.id };
@@ -177,10 +177,10 @@ export async function bindWithInviteCode(childUserId: string, inviteCode: string
     throw createError('邀请码无效', 400);
   }
 
-  // 检查是否已绑定
+  // 检查是否已绑定（幂等：已绑定同一家长则直接返回成功）
   const existing = await userRepo.findFamilyByParentAndChild(family.parentId, childUserId);
   if (existing) {
-    throw createError('已经绑定过该家长', 409);
+    return { parentId: family.parentId, childId: childUserId };
   }
 
   const tempChildId = family.childId;
@@ -197,4 +197,11 @@ export async function bindWithInviteCode(childUserId: string, inviteCode: string
   } catch { /* 临时账户删除失败不影响主流程 */ }
 
   return { parentId: family.parentId, childId: childUserId };
+}
+
+// 家长获取最新的邀请码
+export async function getLatestInviteCode(parentId: string): Promise<{ code: string } | null> {
+  const family = await userRepo.findLatestInviteByParentId(parentId);
+  if (!family || !family.inviteCode) return null;
+  return { code: family.inviteCode };
 }

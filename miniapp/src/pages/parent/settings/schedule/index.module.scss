@@ -1,0 +1,106 @@
+.container {
+  min-height: 100vh;
+  background: #F8FAFC;
+}
+
+.header {
+  height: 112px;
+  background: #FFFFFF;
+  border-bottom: 2px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  gap: 24px;
+}
+
+.backBtn {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.backText {
+  font-size: 48px;
+  color: #1E293B;
+}
+
+.headerTitle {
+  font-size: 36px;
+  font-weight: 600;
+  color: #1E293B;
+}
+
+.content {
+  padding: 32px;
+}
+
+.card {
+  background: #FFFFFF;
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  margin-bottom: 32px;
+}
+
+.label {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1E293B;
+  display: block;
+  margin-bottom: 20px;
+}
+
+.input {
+  width: 100%;
+  height: 88px;
+  border: 2px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 0 24px;
+  font-size: 32px;
+  color: #1E293B;
+  background: #F8FAFC;
+}
+
+.errorText {
+  font-size: 24px;
+  color: #EF4444;
+  margin-top: 12px;
+  display: block;
+}
+
+.saveBtn {
+  background: #6366F1;
+  border-radius: 24px;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+
+  &:active {
+    opacity: 0.85;
+  }
+}
+
+.saveBtnText {
+  font-size: 32px;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.successToast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.75);
+  border-radius: 16px;
+  padding: 24px 40px;
+  z-index: 999;
+}
+
+.successText {
+  font-size: 30px;
+  color: #FFFFFF;
+}
