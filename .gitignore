@@ -35,9 +35,13 @@ Thumbs.db
 # Test artifacts
 miniapp/test-results/
 miniapp/playwright-report/
+miniapp/e2e/.test-state.json
 
 # TypeScript cache
 *.tsbuildinfo
 
 # Prisma migrations lock
 backend/prisma/migrations/migration_lock.toml
+
+# Local notes
+交流记录.txt

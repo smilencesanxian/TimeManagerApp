@@ -36,8 +36,8 @@ cd miniapp && node_modules/typescript/bin/tsc --noEmit
 | Phase 4 | 习惯打卡 | ✅ 已完成 |
 | Phase 4.5 | 成就系统（奖励体系） | ✅ 已完成 |
 | Phase 5.1 | AI任务解析 + AI评语推荐 | ✅ 已完成 |
-| Phase 5 | AI集成（DashScope 完整） | 🚧 进行中 |
-| Phase 6 | 家长端完整功能 | 🔒 未开始 |
+| Phase 5 | AI集成（DashScope 完整） | ⏸️ 推迟至V1.1 |
+| Phase 6 | 家长端MVP补全（设置/评比/孩子管理） | ✅ 已完成 |
 | Phase 7 | 微信小程序打包 | 🔒 未开始 |
 
 ---
@@ -324,6 +324,64 @@ $ node_modules/typescript/bin/tsc --noEmit
 
 ---
 
+## Phase 6 MVP补全详情 ✅
+
+> 由其他 Session 完成，本次补录进度
+
+### MVP优先级决策（来自 /home/wangqi123/.claude/plans/indexed-floating-torvalds.md）
+- Phase 5（AI完整集成）推迟至V1.1，不影响核心流程
+- 重点补全家长端3个占位符页面，全部位于TabBar
+
+### 已完成内容
+
+#### Step 1：孩子端TabBar心语入口 ✅
+- `miniapp/src/app.config.ts`：TabBar 新增 `pages/child/message/index`（心语）
+
+#### Step 2：家长端个人中心页（profile）✅
+- `miniapp/src/pages/parent/profile/index.tsx`：展示家长昵称、绑定孩子列表、跳转孩子管理/设置
+- 关键 testid：`profile-page`、`profile-nickname`、`child-info-section`、`btn-child-manage`、`btn-goto-settings`
+
+#### Step 3：家长端设置页（settings）✅
+- `miniapp/src/pages/parent/settings/index.tsx`：菜单入口（账号/通知/作息/关于）
+- `miniapp/src/pages/parent/settings/schedule/index.tsx`：睡觉时间设置（19:00-23:00校验）
+- `miniapp/src/pages/parent/settings/notification/index.tsx`：任务提醒开关
+- 关键 testid：`settings-page`、`settings-account`、`settings-notification`、`settings-schedule`、`settings-about`、`schedule-settings-page`、`sleep-time-picker`、`btn-save-schedule`
+
+#### Step 4：家长端孩子管理页（child-manage）✅
+- `miniapp/src/pages/parent/child-manage/index.tsx`：绑定孩子列表 + 生成邀请码
+- 关键 testid：`child-manage-page`、`btn-gen-invite-code`、`invite-code`、`child-item-{id}`
+
+#### Step 5：家长端本周评比页（ranking）✅
+- `miniapp/src/pages/parent/ranking/index.tsx`：周选择器 + 任务/习惯/专注统计 + 奖励规则
+- `backend/src/routes/stats.ts`：`GET /api/v1/stats/weekly?startDate=&childId=`（新增）
+- `backend/src/routes/index.ts`：注册 /stats 路由
+- `miniapp/src/services/api.ts`：新增 `statsApi.getWeekly()`、`WeeklyStatsData` 接口类型
+- 关键 testid：`ranking-page`、`weekly-summary-card`、`task-completion-rate`、`habit-completion-rate`、`focus-duration`、`weekly-stars`、`reward-rules-card`、`btn-prev-week`、`btn-next-week`
+
+### E2E测试文件
+| 文件 | 用例数 | 状态 |
+|------|--------|------|
+| `miniapp/e2e/parent-profile.spec.ts` | 20 | ⚠️ 待验证通过 |
+| `miniapp/e2e/parent-ranking.spec.ts` | 待确认 | ⚠️ 待验证通过 |
+
+### TypeScript 类型检查
+```bash
+$ node_modules/typescript/bin/tsc --noEmit
+（无任何输出）✅
+```
+
+### 后端测试
+- **185/185** ✅（Phase 6 未新增后端单元/集成测试，stats 路由较简单）
+
+---
+
+## ⚠️ 待解决问题
+
+1. **Phase 6 E2E 未验证**：parent-profile.spec.ts（20个用例）和 parent-ranking.spec.ts 写好了但尚未跑通，需要启动后端+前端后执行验证
+2. **Phase 5.1 前端 AI 弹窗**：添加任务弹窗的 9 个 testid 及 E2E 未完成（推迟至 V1.1 或单独处理）
+
+---
+
 ## 文件结构快照
 
 ```
@@ -333,21 +391,24 @@ TimeManagerApp-web/
 ├── docs/                        # 产品/UX文档（不修改）
 ├── backend/
 │   ├── src/
-│   │   ├── routes/auth.ts       # 认证路由
-│   │   ├── services/authService.ts
-│   │   ├── repositories/userRepository.ts
+│   │   ├── routes/{auth,tasks,habits,achievements,ai,stats}.ts
+│   │   ├── services/{authService,taskService,habitService,achievementService,aiService}.ts
+│   │   ├── repositories/{userRepository,achievementRepository}.ts
 │   │   ├── middleware/{auth,errorHandler}.ts
 │   │   └── utils/{jwt,logger}.ts
 │   ├── prisma/
-│   │   ├── schema.prisma        # 数据模型
-│   │   └── migrations/          # 已执行的migration
+│   │   ├── schema.prisma
+│   │   └── migrations/
 │   └── tests/{unit,integration}/
 └── miniapp/
     ├── src/
     │   ├── app.tsx / app.config.ts / app.scss
-    │   ├── global.d.ts          # scss模块/全局常量类型声明
-    │   ├── pages/               # 7个页面
-    │   ├── store/authStore.ts   # Zustand认证状态
-    │   └── services/api.ts      # HTTP请求封装
+    │   ├── global.d.ts
+    │   ├── pages/
+    │   │   ├── login/index
+    │   │   ├── parent/{home,plan,ranking,profile,settings,child-manage,habit,comment}/
+    │   │   └── child/{tasks,achievements,achievement/detail,pomodoro,message}/
+    │   ├── store/{authStore,taskStore,habitStore}.ts
+    │   └── services/api.ts
     └── config/{index,dev,prod}.js
 ```
